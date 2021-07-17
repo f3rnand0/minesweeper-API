@@ -7,6 +7,7 @@ let name3 = "Sample 3";
 let user1 = { name: name1 };
 let user2 = { name: name2 };
 let user3 = { name: name3 };
+let game = { rows: 3, columns: 3 };
 
 async function testAddUser() {
   let response = await api.addUser(user1);
@@ -26,13 +27,21 @@ async function testGetUserList() {
   console.log("getUserList data: " + JSON.stringify(response.data));
 }
 
+async function testAddGame() {
+  let response = await api.addGame(game);
+  console.log("addGame status: " + response.status);
+  console.log("addGame data: " + JSON.stringify(response.data));
+}
+
 async function main() {
   await Promise.all([
-    testAddUser(),
+/*    testAddUser(),
     testGetUser(),
     testAddUser(),
     testAddUser(),
-    testGetUserList()])
+    testGetUserList()*/
+    testAddGame()
+  ])
 }
 
 main();

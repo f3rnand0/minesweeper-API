@@ -14,5 +14,10 @@ module.exports = {
   async addUser(user) {
     let response = await axios.post('http://localhost:8080/minesweeper-api/user/add', user)
     return response
+  },
+
+  async addGame(game) {
+    let response = await axios.post('http://localhost:8080/minesweeper-api/game/add', game)
+    return response
   }
 }

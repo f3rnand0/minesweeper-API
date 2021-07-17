@@ -37,7 +37,7 @@ public class UserServiceTest {
 		userService.addUser(new UserDto("Sample 2"));
 		userService.addUser(new UserDto("Sample 3"));
 		List<UserDto> userList = (List<UserDto>)userService.getUserList();
-		assertEquals("User list", userList.size() ,3);
+		assertEquals("User list size different", userList.size() ,3);
 	}
 
 	@Test

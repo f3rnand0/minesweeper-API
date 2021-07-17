@@ -41,8 +41,7 @@ public class UserService {
     public UserDto addUser(UserDto userDto) {
         Optional<User> user = userRepository.findByName(userDto.getName());
         if (!user.isPresent()) {
-            User newUser = new User();
-            newUser.setName(userDto.getName());
+            User newUser = new User(userDto.getName());
             User userSaved = userRepository.save(newUser);
             return modelMapper.map(userSaved, UserDto.class);
         }
