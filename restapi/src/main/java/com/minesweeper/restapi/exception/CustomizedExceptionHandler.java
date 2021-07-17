@@ -1,6 +1,5 @@
-package com.minesweeper.restapi.configuration;
+package com.minesweeper.restapi.exception;
 
-import com.minesweeper.restapi.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,8 +12,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    public final ResponseEntity handleNotFountExceptions(Exception ex, WebRequest request) {
-        return new ResponseEntity(new User(), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(NotFoundException.class)
+    public final ResponseEntity handleNotFoundException(Exception ex, WebRequest request) {
+        return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public final ResponseEntity handleAlreadyExistsException(Exception ex, WebRequest request) {
+        return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

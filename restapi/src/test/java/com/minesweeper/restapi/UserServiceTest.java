@@ -25,14 +25,9 @@ public class UserServiceTest {
 	public void shouldReturnUser() {
 		String expectedName = "Sample 1";
 		userService.addUser(new UserDto(expectedName));
-		UserDto queriedUser = (UserDto)userService.getUser(expectedName).getBody();
+		UserDto queriedUser = userService.getUser(expectedName);
 		assertNotNull("User shouldn't be null", queriedUser);
 		assertEquals("User name shouldn't be null", "Sample 1", queriedUser.getName());
-	}
-
-	private UserDto addSampleUser(String name) {
-		UserDto userDto = new UserDto(name);
-		return (UserDto)userService.addUser(userDto).getBody();
 	}
 
 	@Test
@@ -41,7 +36,7 @@ public class UserServiceTest {
 		userService.addUser(new UserDto("Sample 1"));
 		userService.addUser(new UserDto("Sample 2"));
 		userService.addUser(new UserDto("Sample 3"));
-		List<UserDto> userList = (List<UserDto>)userService.getUserList().getBody();
+		List<UserDto> userList = (List<UserDto>)userService.getUserList();
 		assertEquals("User list", userList.size() ,3);
 	}
 
@@ -49,7 +44,7 @@ public class UserServiceTest {
 	public void shouldReturnUserAdded() {
 		UserDto userDto = new UserDto();
 		userDto.setName("User sample 1");
-		UserDto userDtoAdded = (UserDto) userService.addUser(userDto).getBody();
+		UserDto userDtoAdded = userService.addUser(userDto);
 		assertNotNull("User shouldn't be null", userDtoAdded);
 		assertNotNull("User name shouldn't be null", userDtoAdded.getName());
 	}

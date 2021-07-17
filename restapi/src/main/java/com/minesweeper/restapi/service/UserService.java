@@ -2,6 +2,8 @@ package com.minesweeper.restapi.service;
 
 import com.minesweeper.restapi.dto.UserDto;
 import com.minesweeper.restapi.entity.User;
+import com.minesweeper.restapi.exception.AlreadyExistsException;
+import com.minesweeper.restapi.exception.NotFoundException;
 import com.minesweeper.restapi.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +24,28 @@ public class UserService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public ResponseEntity<Object> getUser(String name) {
+    public UserDto getUser(String name) {
         Optional<User> user = userRepository.findByName(name);
         if (user.isPresent())
-            return new ResponseEntity(modelMapper.map(user.get(), UserDto.class), HttpStatus.OK);
-        else
-            return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
+            return modelMapper.map(user.get(), UserDto.class);
+        throw new NotFoundException("User not found");
     }
 
-    public ResponseEntity<Object> getUserList() {
+    public List<UserDto> getUserList() {
         List<UserDto>
-                userList = userRepository.findAll().stream().map(user -> new UserDto(user.getName())).collect(Collectors.toList());
-        return new ResponseEntity(userList, HttpStatus.OK);
+                userList = userRepository.findAll().stream().map(user -> new UserDto(user.getName()))
+                .collect(Collectors.toList());
+        return userList;
     }
 
-    public ResponseEntity<Object> addUser(UserDto userDto) {
+    public UserDto addUser(UserDto userDto) {
         Optional<User> user = userRepository.findByName(userDto.getName());
-        if (user.isPresent())
-            return new ResponseEntity("User already exist", HttpStatus.BAD_REQUEST);
-        else {
+        if (!user.isPresent()) {
             User newUser = new User();
             newUser.setName(userDto.getName());
             User userSaved = userRepository.save(newUser);
-            return new ResponseEntity<>(modelMapper.map(userSaved, UserDto.class), HttpStatus.CREATED);
+            return modelMapper.map(userSaved, UserDto.class);
         }
+        throw new AlreadyExistsException("User already exist");
     }
 }

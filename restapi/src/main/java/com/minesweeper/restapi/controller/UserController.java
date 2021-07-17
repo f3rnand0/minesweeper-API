@@ -2,9 +2,18 @@ package com.minesweeper.restapi.controller;
 
 import com.minesweeper.restapi.dto.UserDto;
 import com.minesweeper.restapi.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/minesweeper-api/user")
@@ -13,31 +22,54 @@ public class UserController {
     private UserService userService;
 
     /**
-     * Get user by id
+     * Get user by name
+     *
      * @param name Name of the user
      * @return UserDto or error message
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getUser(@PathVariable String name) {
-        return userService.getUser(name);
+    @Operation(summary = "Get user by name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the user",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDto.class))}),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content)})
+    @GetMapping("/{name}")
+    public ResponseEntity<UserDto> getUser(@PathVariable String name) {
+        return new ResponseEntity<UserDto>(userService.getUser(name), HttpStatus.OK);
     }
 
     /**
      * Get list of users
+     *
      * @return List of UserDto
      */
+    @Operation(summary = "Get list of users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the user list",
+                    content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema =
+                            @Schema(implementation = UserDto.class)))})})
     @GetMapping("/list")
-    public ResponseEntity<Object> getUserList() {
-        return userService.getUserList();
+    public ResponseEntity<List<UserDto>> getUserList() {
+        return new ResponseEntity<List<UserDto>>(userService.getUserList(), HttpStatus.OK);
     }
 
     /**
-     * Add user
+     * Add a user
+     *
      * @return UserDto or error message
      */
+    @Operation(summary = "Add a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User added",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserDto.class))}),
+            @ApiResponse(responseCode = "400", description = "User already exist",
+                    content = @Content)})
     @PostMapping("/add")
-    public ResponseEntity<Object> getUserList(@RequestBody UserDto userDto) {
-        return userService.addUser(userDto);
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
+        return new ResponseEntity<UserDto>(userService.addUser(userDto), HttpStatus.CREATED);
     }
 
 }
