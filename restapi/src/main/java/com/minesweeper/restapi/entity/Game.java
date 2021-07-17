@@ -8,15 +8,21 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Entity
 @Data
+@Table(name = "game")
 public class Game {
     @Id
     @Column(name = "game_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @OneToMany(mappedBy = "game")
-    private Set<User> users;
+    private Set<Board> boards;
 
     @Column(name = "rows_number")
     private Integer rowsNumber;

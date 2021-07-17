@@ -5,19 +5,18 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Set;
 
+@Entity
 @Data
+@Table(name = "board")
 public class Board {
     @Id
     @Column(name = "board_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "board")
-    private Set<Game> games;
-
     @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "game_id")
+    private Game game;
 
     private Integer row;
 
