@@ -1,17 +1,18 @@
 package com.minesweeper.restapi.entity;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Data
+@ToString(exclude = "cells")
 @Accessors(chain = true)
-@Table(name = "game")
 public class Game {
     @Id
     @Column(name = "game_id")
@@ -22,14 +23,16 @@ public class Game {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "game")
-    private Set<Cell> cells;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "game")
+    private List<Cell> cells;
 
     private Integer rows;
 
     private Integer columns;
 
-    private String mines;
+    private Integer mines;
+
+    private GameTurn gameTurn;
 
     @Column(name = "date_started")
     private Timestamp dateStarted;

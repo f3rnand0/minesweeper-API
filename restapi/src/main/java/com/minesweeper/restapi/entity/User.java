@@ -2,16 +2,18 @@ package com.minesweeper.restapi.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Data
+@ToString(exclude = "games")
 @NoArgsConstructor
 @Accessors(chain = true)
-@Table(name = "user")
 public class User {
 
     public User(String name) {
@@ -23,7 +25,7 @@ public class User {
     private Long id;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
-    private Set<Game> games;
+    private List<Game> games;
 
     private String name;
 }

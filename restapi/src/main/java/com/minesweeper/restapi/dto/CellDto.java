@@ -20,7 +20,7 @@ public class CellDto implements Comparable<CellDto> {
 
     private Integer row;
     private Integer column;
-    private CellState state;
+    private String state;
 
     @Override
     public int compareTo(CellDto cellDto) {

@@ -20,18 +20,39 @@ public class GameController {
     private GameService gameService;
 
     /**
-     * Create game before start
+     * Start a game
      *
      * @return GameDto
      */
-    @Operation(summary = "Create game before start")
+    @Operation(summary = "Start a game")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Created the board",
+            @ApiResponse(responseCode = "201", description = "Start a game based on specific rows, columns " +
+                                                             "and mines",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = GameDto.class))})
-    })
+                            schema = @Schema(implementation = GameDto.class))}),
+            @ApiResponse(responseCode = "400", description = "User not found",
+                    content = @Content)})
     @PostMapping("/add")
     public ResponseEntity<GameDto> addGame(@RequestBody GameDto gameDto) {
         return new ResponseEntity<GameDto>(gameService.addGame(gameDto), HttpStatus.CREATED);
     }
+
+    /**
+     * Modify cells depending the player turn
+     *
+     * @return GameDto
+     */
+    @Operation(summary = "Modify cells depending the player turn")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Modify cells of the board depending the " +
+                                                             "player turn",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GameDto.class))}),
+            @ApiResponse(responseCode = "400", description = "Game not found",
+                    content = @Content)})
+    @PostMapping("/modify")
+    public ResponseEntity<GameDto> modifyGame(@RequestBody GameDto gameDto) {
+        return new ResponseEntity<GameDto>(gameService.modifyGame(gameDto), HttpStatus.CREATED);
+    }
+
 }

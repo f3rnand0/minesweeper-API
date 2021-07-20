@@ -1,66 +1,107 @@
 package com.minesweeper.restapi.service;
 
+import com.minesweeper.restapi.entity.Cell;
+import com.minesweeper.restapi.entity.CellState;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 public class MineSweeperAlgorithm {
 
-/*    public void setup() {
-        createBricks();
-        MineGenerator();
-        NumberGenerator();
-    }
+    private static Random random = new Random();
 
-    private void createBricks() {
-        for (int i = 0; i < TILE_COLUMNS; i++) {
-            for (int j = 0; j < TILE_ROWS; j++) {
-                Tile tile = new Tile(i * TILE_SIDE, j * TILE_SIDE, TILE_SIDE, TILE_SIDE);
-                tile.setColor(new Color(100, 100, 100));
-                tile.setRaised(true);
-                tile.setFilled(true);
-                add(tile);
+    /*public static List<Cell> mineGenerator(List<Cell> cellSet, int rows, int columns, int mineNumber) {
+        int i = 0;
+        while (i < mineNumber) {
+            int x = random.nextInt(columns - 1);
+            int y = random.nextInt(rows - 1);
+            Predicate<Cell> filterCellXY = c -> c.getRow().equals(x) && c.getColumn().equals(y);
+            //cellSet.stream().flatMap(filterAndMap(predicate, c -> c.setState(CellState.MINE))).findFirst
+            ().get();
+            Cell cell = cellSet.stream().filter(filterCellXY).findFirst().get();
+            if (!CellState.MINE.equals(cell.getState())) {
+                cellSet.stream().filter(c -> c.getRow().equals(x) && c.getColumn().equals(y))
+                        .map(c -> c.setState(CellState.MINE));
+                i++;
             }
         }
-    }
+        return cellSet;
+    }*/
 
-    private void MineGenerator() {
+    protected static void mineGenerator(Character[][] cells, int rows, int columns, int mines) {
         int i = 0;
-        while (i < MINE_NUMBER) {
-            int x = rgen.nextInt(0, TILE_COLUMNS - 1);
-            int y = rgen.nextInt(0, TILE_ROWS - 1);
-            if (Mines[x][y] != 'x') {
-                Mines[x][y] = 'x';
+        while (i < mines) {
+            int x = random.nextInt(columns - 1);
+            int y = random.nextInt(rows - 1);
+            if (CellState.MINE.label != (cells[x][y])) {
+                cells[x][y] = CellState.MINE.label;
                 i++;
             }
         }
     }
 
-    private void NumberGenerator() {
-        for (int i = 0; i < TILE_COLUMNS; i++) {
-            for (int j = 0; j < TILE_ROWS; j++) {
-                if (Mines[i][j] != 'x')
-                    Mines[i][j] = (char) (CountSurround(i, j) + 48);
-                if (Mines[i][j] == '0')
-                    Mines[i][j] = ' ';
+    /*protected static void numberGenerator(Character[][] cells, int rows, int columns) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
+                if (CellState.MINE.label != (cells[i][j]))
+                    cells[i][j] = (char) (countSurround(cells, i, j, rows, columns) + 48);
+                if (cells[i][j] == '0')
+                    cells[i][j] = CellState.HIDDEN.label;
+            }
+        }
+    }*/
+
+    protected static void numberGenerator(Character[][] cells, int rows, int columns) {
+        int count = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (cells[i][j] == -1) {
+                    count = 0;
+                    for (int k = -1; k <= 1; k++) {
+                        for (int l = -1; l <= 1; l++) {
+                            // In boundary cases
+                            try {
+                                if (cells[i + k][j + l] != CellState.MINE.label) {
+                                    count++;
+                                    cells[i + k][j + l] = (char) (count);
+                                }
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                // Do nothing
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    private int CountSurround(int i, int j) {
+    private static int countSurround(Character[][] cells, int i, int j, int rows, int columns) {
         int count = 0;
-        if (i + 1 != TILE_COLUMNS && Mines[i + 1][j] == 'x')
+        if (i + 1 != columns && cells[i + 1][j] == CellState.MINE.label)
             count++;
-        if (i + 1 != TILE_COLUMNS && j + 1 != TILE_ROWS && Mines[i + 1][j + 1] == 'x')
+        if (i + 1 != columns && j + 1 != rows && cells[i + 1][j + 1] == CellState.MINE.label)
             count++;
-        if (i - 1 != -1 && j + 1 != TILE_ROWS && Mines[i - 1][j + 1] == 'x')
+        if (i - 1 != -1 && j + 1 != rows && cells[i - 1][j + 1] == CellState.MINE.label)
             count++;
-        if (i + 1 != TILE_COLUMNS && j - 1 != -1 && Mines[i + 1][j - 1] == 'x')
+        if (i + 1 != columns && j - 1 != -1 && cells[i + 1][j - 1] == CellState.MINE.label)
             count++;
-        if (i - 1 != -1 && j - 1 != -1 && Mines[i - 1][j - 1] == 'x')
+        if (i - 1 != -1 && j - 1 != -1 && cells[i - 1][j - 1] == CellState.MINE.label)
             count++;
-        if (i - 1 != -1 && Mines[i - 1][j] == 'x')
+        if (i - 1 != -1 && cells[i - 1][j] == CellState.MINE.label)
             count++;
-        if (j + 1 != TILE_ROWS && Mines[i][j + 1] == 'x')
+        if (j + 1 != rows && cells[i][j + 1] == CellState.MINE.label)
             count++;
-        if (j - 1 != -1 && Mines[i][j - 1] == 'x')
+        if (j - 1 != -1 && cells[i][j - 1] == CellState.MINE.label)
             count++;
         return count;
-    }*/
+    }
+
+    private static <E, R> Function<E, Stream<R>> filterAndMap(Predicate<? super E> filter,
+                                                              Function<? super E, R> mapper) {
+        return e -> filter.test(e) ? Stream.of(mapper.apply(e)) : Stream.empty();
+    }
 }

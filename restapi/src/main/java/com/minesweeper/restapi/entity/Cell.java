@@ -1,6 +1,7 @@
 package com.minesweeper.restapi.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -8,8 +9,8 @@ import java.util.Set;
 
 @Entity
 @Data
+@NoArgsConstructor
 @Accessors(chain = true)
-@Table(name = "board")
 public class Cell {
     @Id
     @Column(name = "board_id")
@@ -24,5 +25,11 @@ public class Cell {
 
     private Integer column;
 
-    private CellState state;
+    private String state;
+
+    public Cell(Integer row, Integer column, String state) {
+        this.row = row;
+        this.column = column;
+        this.state = state;
+    }
 }

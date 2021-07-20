@@ -3,12 +3,10 @@ package com.minesweeper.restapi.service;
 import com.minesweeper.restapi.dto.UserDto;
 import com.minesweeper.restapi.entity.User;
 import com.minesweeper.restapi.exception.AlreadyExistsException;
-import com.minesweeper.restapi.exception.NotFoundException;
+import com.minesweeper.restapi.exception.UserNotFoundException;
 import com.minesweeper.restapi.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +26,7 @@ public class UserService {
         Optional<User> user = userRepository.findByName(name);
         if (user.isPresent())
             return modelMapper.map(user.get(), UserDto.class);
-        throw new NotFoundException("User not found");
+        throw new UserNotFoundException("User not found");
     }
 
     public List<UserDto> getUserList() {
