@@ -20,16 +20,19 @@ public class CellDto implements Comparable<CellDto> {
 
     private Integer row;
     private Integer column;
+    private Boolean visible;
     private String state;
+
+    public CellDto(Integer row, Integer column) {
+        this.row = row;
+        this.column = column;
+    }
 
     @Override
     public int compareTo(CellDto cellDto) {
         int c = row.compareTo(cellDto.getRow());
         if (c == 0)
             c = column.compareTo(cellDto.getColumn());
-        if (c == 0)
-            c = state.compareTo(cellDto.getState());
         return c;
     }
-
 }

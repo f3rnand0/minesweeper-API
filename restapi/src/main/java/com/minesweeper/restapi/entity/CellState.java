@@ -1,15 +1,13 @@
 package com.minesweeper.restapi.entity;
 
 public enum CellState {
-    HIDDEN('h'),
-    VISIBLE('v'),
-    MINE('m'),
-    //NUMBERED('n'),
-    FLAGGED('f');
+    EMPTY("empty"),
+    MINE("mine"),
+    FLAGGED("flagged");
 
-    public final Character label;
+    public final String label;
 
-    CellState(Character label) {
+    CellState(String label) {
         this.label = label;
     }
 

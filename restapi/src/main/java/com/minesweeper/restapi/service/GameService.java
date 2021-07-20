@@ -1,5 +1,6 @@
 package com.minesweeper.restapi.service;
 
+import com.minesweeper.restapi.dto.BoardDto;
 import com.minesweeper.restapi.dto.CellDto;
 import com.minesweeper.restapi.dto.GameDto;
 import com.minesweeper.restapi.dto.UserDto;
@@ -13,9 +14,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -45,7 +49,8 @@ public class GameService {
                     .setRows(rows)
                     .setColumns(columns)
                     .setMines(gameDto.getMines())
-                    .setGameTurn(GameTurn.ZERO);
+                    .setGameTurn(GameTurn.ZERO)
+                    .setSelectedCell(new Cell(1L));
             Game gameSaved = gameRepository.save(game);
             List<Cell> cellList = generateBoard(rows, columns, gameSaved);
 
@@ -68,87 +73,110 @@ public class GameService {
     public GameDto modifyGame(GameDto gameDto) {
         Optional<Game> game = gameRepository.findById(gameDto.getId());
         if (game.isPresent()) {
-            List<Cell> cellList = new ArrayList<>();
-            Game reqGame = game.get();
-            // Generate mines, numbers and visible cells on first turn
+            BoardDto boardDto = null;
+            List<Cell> cellList;
+            Game queriedGame = game.get();
+            int rows = queriedGame.getRows();
+            int columns = queriedGame.getColumns();
+            // Generate mines, numbers on first turn
             if (GameTurn.FIRST.equals(gameDto.getGameTurn())) {
-                reqGame.setDateStarted(new Timestamp(Instant.now().toEpochMilli()));
-                int rows = reqGame.getRows();
-                int columns = reqGame.getColumns();
-                Character[][] cells = transformFromDtosIntoPrimitives(reqGame.getCells(), rows, columns);
-                MineSweeperAlgorithm.mineGenerator(cells,
+                queriedGame.setGameTurn(gameDto.getGameTurn());
+                queriedGame.setDateStarted(new Timestamp(Instant.now().toEpochMilli()));
+
+                boardDto = DataStructureTransformer
+                        .transformFromListDtoIntoArrays(queriedGame.getCells(), rows, columns);
+                String[][] cells = boardDto.getCells();
+                cells = MineSweeperAlgorithm.mineGenerator(cells,
                                                            rows,
-                                                           columns, reqGame.getMines());
-                MineSweeperAlgorithm.numberGenerator(cells,
-                                                           rows,
-                                                           columns);
-                cellList = transformFromPrimitivesIntoDtos(cells, rows, columns);
-                reqGame.setCells(cellList);
+                                                           columns, queriedGame.getMines());
+                cells = MineSweeperAlgorithm.numberGenerator(cells,
+                                                             rows,
+                                                             columns);
+                boardDto.setCells(cells);
+                boardDto.setVisibleCount(0);
+                boardDto.setEndMessage("");
+            } else if (GameTurn.LATER.equals(gameDto.getGameTurn())) {
+                cellList = cellRepository.findCellsByGameId(queriedGame.getId());
+                queriedGame.setGameTurn(gameDto.getGameTurn());
+                boardDto = DataStructureTransformer
+                        .transformFromListDtoIntoArrays(cellList, rows, columns);
+                boardDto.setVisibleCount(queriedGame.getVisibleCount());
+                boardDto.setEndMessage("");
             }
+            // Check surrounding cells of selected cell and do the corresponding action
+
+            boardDto = MineSweeperAlgorithm.checkSelectedCell(boardDto, gameDto.getSelectedCell().getColumn(),
+                                                              gameDto.getSelectedCell().getRow(),
+                                                              gameDto.getMines());
+            cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
+            queriedGame.setCells(cellList);
+            queriedGame.setVisibleCount(boardDto.getVisibleCount());
+            queriedGame.setEndMessage(boardDto.getEndMessage());
+            // Check if game ended
+            if (!"".equals(queriedGame.getEndMessage())) {
+                queriedGame.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
+                long elapsedTime = Duration.between(queriedGame.getDateStarted().toInstant(),
+                                                    queriedGame.getDateFinished().toInstant()).toMillis();
+                queriedGame.setElapsedTime(new Time(elapsedTime));
+            }
+            //queriedGame.setCells(cellList);
 
             // Store cells with modifications
-            Game gameSaved = gameRepository.save(reqGame);
-            GameDto respGameDto = modelMapper.map(gameSaved, GameDto.class);
+            Game gameSaved = gameRepository.save(queriedGame);
+            cellList = modifyBoard(boardDto, rows, columns, gameSaved);
+            GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
+            // TODO En el gameSaved ya esta el usuario asociado
             User userGame = gameRepository.findUserByGameId(gameSaved.getId());
-            respGameDto.setUser(modelMapper.map(userGame, UserDto.class));
+            mappedGameDto.setUser(modelMapper.map(userGame, UserDto.class));
             List<CellDto> cellDtoList =
                     cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
                             .collect(Collectors.toList());
-            respGameDto.setCells(cellDtoList);
-            return respGameDto;
+            mappedGameDto.setCells(cellDtoList);
+            return mappedGameDto;
         }
         throw new GameNotFoundException("Game not found");
     }
 
     private List<Cell> generateBoard(int rows, int columns, Game gameSaved) {
         List<Cell> cellList = new ArrayList<>(rows * columns);
+        long count = 1;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 Cell cell = new Cell()
+                        .setId(count)
                         .setGame(gameSaved)
                         .setRow(i)
                         .setColumn(j)
-                        .setState(String.valueOf(CellState.HIDDEN));
+                        .setState(CellState.EMPTY.label)
+                        .setVisible(Boolean.FALSE);
                 Cell cellSaved = cellRepository.save(cell);
                 cellList.add(cellSaved);
+                count++;
             }
         }
         return cellList;
     }
 
-    /*private List<Cell> updateBoard(int rows, int columns, List<Cell> cellList, Game gameSaved) {
+    private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved) {
+        Boolean[][] visibleCells = boardDto.getVisibleCells();
+        String[][] cells = boardDto.getCells();
         List<Cell> cellList = new ArrayList<>(rows * columns);
+        long count = 1;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 Cell cell = new Cell()
+                        .setId(count)
                         .setGame(gameSaved)
                         .setRow(i)
                         .setColumn(j)
-                        .setState(String.valueOf(CellState.HIDDEN));
+                        .setVisible(visibleCells[i][j])
+                        // TODO When user flag a cell
+                        .setState(cells[i][j]);
                 Cell cellSaved = cellRepository.save(cell);
                 cellList.add(cellSaved);
+                count++;
             }
         }
         return cellList;
-    }*/
-
-    private List<Cell> transformFromPrimitivesIntoDtos(Character[][] cells, int rows, int columns) {
-        List<Cell> cellList = new ArrayList<>(rows * columns);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                cellList.add(new Cell(i, j, cells[i][j].toString()));
-            }
-        }
-        return cellList;
-    }
-
-    private Character[][] transformFromDtosIntoPrimitives(List<Cell> cellList, int rows, int columns) {
-        Character[][] cells = new Character[rows][columns];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                cells[i][j] = cellList.get(i + j).getState().charAt(0);
-            }
-        }
-        return cells;
     }
 }

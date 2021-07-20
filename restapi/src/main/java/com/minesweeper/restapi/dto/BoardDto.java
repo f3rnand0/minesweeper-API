@@ -10,24 +10,21 @@ import lombok.NoArgsConstructor;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GameDto {
+public class BoardDto {
 
-    private Long id;
-    private UserDto user;
-    private Integer rows;
-    private Integer columns;
-    private Integer mines;
-    private List<CellDto> cells;
-    private GameTurn gameTurn;
-    private CellDto selectedCell;
-    private Timestamp dateStarted;
-    private Timestamp dateFinished;
-    private Time elapsedTime;
+    private Boolean[][] visibleCells;
+    private String[][] cells;
     private String endMessage;
+    private Integer visibleCount;
+
+    public BoardDto(Boolean[][] visibleCells, String[][] cells) {
+        this.visibleCells = visibleCells;
+        this.cells = cells;
+    }
 }

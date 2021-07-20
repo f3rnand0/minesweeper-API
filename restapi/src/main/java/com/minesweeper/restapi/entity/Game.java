@@ -11,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Data
-@ToString(exclude = "cells")
+@ToString(exclude = {"cells", "selectedCell"})
 @Accessors(chain = true)
 public class Game {
     @Id
@@ -34,6 +34,10 @@ public class Game {
 
     private GameTurn gameTurn;
 
+    @OneToOne
+    @MapsId
+    private Cell selectedCell;
+
     @Column(name = "date_started")
     private Timestamp dateStarted;
 
@@ -42,4 +46,8 @@ public class Game {
 
     @Column(name = "elapsed_time")
     private Time elapsedTime;
+
+    private String endMessage;
+
+    private Integer visibleCount;
 }
