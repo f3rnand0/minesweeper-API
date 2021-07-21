@@ -26,6 +26,7 @@ public class GameDto {
     private List<CellDto> cells;
     private GameTurn gameTurn;
     private CellDto selectedCell;
+    private CellDto flaggedCell;
     private Timestamp dateStarted;
     private Timestamp dateFinished;
     private Time elapsedTime;

@@ -45,30 +45,30 @@ public class GameServiceTest {
 
     @Test
     public void shouldReturnGame() {
-        GameDto gameDto = new GameDto();
-        gameDto.setRows(4);
-        gameDto.setColumns(4);
-        gameDto.setUser(new UserDto(DEFAULT_USER));
-        GameDto gameSaved = gameService.addGame(gameDto);
-        assertNotNull("Game shouldn't be null", gameSaved);
-        assertEquals("Game cells size different", 3 * 3, gameSaved.getCells().size());
+//        GameDto gameDto = new GameDto();
+//        gameDto.setRows(4);
+//        gameDto.setColumns(4);
+//        gameDto.setUser(new UserDto(DEFAULT_USER));
+//        GameDto gameSaved = gameService.addGame(gameDto);
+        assertNotNull("Game shouldn't be null", gameDtoSaved);
+        assertEquals("Game cells size different", 3 * 3, gameDtoSaved.getCells().size());
     }
 
     @Test
     public void shouldReturnGameWithMinesNumbers() {
-        GameDto gameDto = new GameDto();
-        gameDto.setRows(4);
-        gameDto.setColumns(4);
-        gameDto.setMines(2);
-        gameDto.setGameTurn(GameTurn.ZERO);
-        gameDto.setUser(new UserDto(DEFAULT_USER));
-        GameDto gameDtoSaved = gameService.addGame(gameDto);
+//        GameDto gameDto = new GameDto();
+//        gameDto.setRows(4);
+//        gameDto.setColumns(4);
+//        gameDto.setMines(2);
+//        gameDto.setGameTurn(GameTurn.ZERO);
+//        gameDto.setUser(new UserDto(DEFAULT_USER));
+//        GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2,2));
         gameDtoSaved = gameService.modifyGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long minesCount = cellDtoList.stream().filter(c -> c.getState().equals(CellState.MINE.label)).count();
-        assertEquals("Game mines should be equal", (int) gameDto.getMines(), (int) minesCount);
+        assertEquals("Game mines should be equal", (int) gameDtoSaved.getMines(), (int) minesCount);
         Predicate<CellDto> filterCellNumbers =
                 c -> c.getState().equals("1") || c.getState().equals("2") || c.getState().equals("3") ||
                      c.getState().equals("4") || c.getState().equals("5");
@@ -80,7 +80,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void shouldWinorLoseGame() {
+    public void shouldWinOrLoseGame() {
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2,2));
         gameDtoSaved = gameService.modifyGame(gameDtoSaved);

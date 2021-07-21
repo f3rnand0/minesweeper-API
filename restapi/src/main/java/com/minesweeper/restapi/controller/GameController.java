@@ -42,13 +42,13 @@ public class GameController {
      *
      * @return GameDto
      */
-    @Operation(summary = "Modify cells depending the player turn")
+    @Operation(summary = "Modify cells depending on the selected cell and the player turn")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Modify cells of the board depending the " +
-                                                             "player turn",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = GameDto.class))}),
-            @ApiResponse(responseCode = "400", description = "Game not found",
+            @ApiResponse(responseCode = "201", description = "Modify a game based on selected cell of the " +
+                                                             "board and depending on the player turn",
+                    content= {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = GameDto.class))}),
+            @ApiResponse(responseCode = "404", description = "Game not found",
                     content = @Content)})
     @PostMapping("/modify")
     public ResponseEntity<GameDto> modifyGame(@RequestBody GameDto gameDto) {

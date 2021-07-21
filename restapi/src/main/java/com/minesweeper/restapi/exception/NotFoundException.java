@@ -3,9 +3,9 @@ package com.minesweeper.restapi.exception;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class GameNotFoundException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
 
-    public GameNotFoundException(String message) {
+    public NotFoundException(String message) {
         super(message);
     }
 }

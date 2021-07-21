@@ -21,6 +21,7 @@ public class CellDto implements Comparable<CellDto> {
     private Integer row;
     private Integer column;
     private Boolean visible;
+    private Boolean flagged;
     private String state;
 
     public CellDto(Integer row, Integer column) {

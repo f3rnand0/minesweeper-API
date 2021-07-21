@@ -1,13 +1,13 @@
 package com.minesweeper.restapi.entity;
 
 public enum GameTurn {
-    ZERO('z'),
-    FIRST('f'),
-    LATER('l');
+    ZERO("zero"),
+    FIRST("first"),
+    LATER("later");
 
-    public final Character label;
+    public final String label;
 
-    GameTurn(Character label) {
+    GameTurn(String label) {
         this.label = label;
     }
 }

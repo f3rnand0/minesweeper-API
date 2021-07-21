@@ -19,12 +19,14 @@ import java.util.List;
 public class BoardDto {
 
     private Boolean[][] visibleCells;
+    private Boolean[][] flaggedCells;
     private String[][] cells;
     private String endMessage;
     private Integer visibleCount;
 
-    public BoardDto(Boolean[][] visibleCells, String[][] cells) {
+    public BoardDto(Boolean[][] visibleCells, Boolean[][] flaggedCells, String[][] cells) {
         this.visibleCells = visibleCells;
+        this.flaggedCells = flaggedCells;
         this.cells = cells;
     }
 }

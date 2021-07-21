@@ -5,8 +5,7 @@ import com.minesweeper.restapi.dto.CellDto;
 import com.minesweeper.restapi.dto.GameDto;
 import com.minesweeper.restapi.dto.UserDto;
 import com.minesweeper.restapi.entity.*;
-import com.minesweeper.restapi.exception.GameNotFoundException;
-import com.minesweeper.restapi.exception.UserNotFoundException;
+import com.minesweeper.restapi.exception.NotFoundException;
 import com.minesweeper.restapi.repository.CellRepository;
 import com.minesweeper.restapi.repository.GameRepository;
 import com.minesweeper.restapi.repository.UserRepository;
@@ -67,7 +66,7 @@ public class GameService {
             respGameDto.setCells(cellDtoList);
             return respGameDto;
         }
-        throw new UserNotFoundException("User not found");
+        throw new NotFoundException("User not found");
     }
 
     public GameDto modifyGame(GameDto gameDto) {
@@ -78,6 +77,7 @@ public class GameService {
             Game queriedGame = game.get();
             int rows = queriedGame.getRows();
             int columns = queriedGame.getColumns();
+            int mines = queriedGame.getMines();
             // Generate mines, numbers on first turn
             if (GameTurn.FIRST.equals(gameDto.getGameTurn())) {
                 queriedGame.setGameTurn(gameDto.getGameTurn());
@@ -88,7 +88,8 @@ public class GameService {
                 String[][] cells = boardDto.getCells();
                 cells = MineSweeperAlgorithm.mineGenerator(cells,
                                                            rows,
-                                                           columns, queriedGame.getMines());
+                                                           columns, queriedGame.getMines(), gameDto.getSelectedCell().getRow(),
+                                                           gameDto.getSelectedCell().getColumn());
                 cells = MineSweeperAlgorithm.numberGenerator(cells,
                                                              rows,
                                                              columns);
@@ -103,21 +104,39 @@ public class GameService {
                 boardDto.setVisibleCount(queriedGame.getVisibleCount());
                 boardDto.setEndMessage("");
             }
-            // Check surrounding cells of selected cell and do the corresponding action
 
-            boardDto = MineSweeperAlgorithm.checkSelectedCell(boardDto, gameDto.getSelectedCell().getColumn(),
-                                                              gameDto.getSelectedCell().getRow(),
-                                                              gameDto.getMines());
-            cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
-            queriedGame.setCells(cellList);
-            queriedGame.setVisibleCount(boardDto.getVisibleCount());
-            queriedGame.setEndMessage(boardDto.getEndMessage());
-            // Check if game ended
-            if (!"".equals(queriedGame.getEndMessage())) {
-                queriedGame.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
-                long elapsedTime = Duration.between(queriedGame.getDateStarted().toInstant(),
-                                                    queriedGame.getDateFinished().toInstant()).toMillis();
-                queriedGame.setElapsedTime(new Time(elapsedTime));
+            // Only do actions related to a selected cell when a user dont flag cell
+            if (gameDto.getFlaggedCell() == null) {
+                // Check surrounding cells of selected cell and do the corresponding action
+                boardDto = MineSweeperAlgorithm.checkSelectedCell(boardDto, gameDto.getSelectedCell().getRow(),
+                                                                  gameDto.getSelectedCell().getColumn(),
+                                                                  mines);
+                cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
+                queriedGame.setCells(cellList);
+                queriedGame.setVisibleCount(boardDto.getVisibleCount());
+                queriedGame.setEndMessage(boardDto.getEndMessage());
+                // Check if game ended
+                if (!"".equals(queriedGame.getEndMessage())) {
+                    queriedGame.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
+                    long elapsedTime = Duration.between(queriedGame.getDateStarted().toInstant(),
+                                                        queriedGame.getDateFinished().toInstant()).toMillis();
+                    queriedGame.setElapsedTime(new Time(elapsedTime));
+                }
+            }
+            // Only change the corresponding cell to flagged state and nothing else
+            else {
+                int x = gameDto.getFlaggedCell().getRow();
+                int y = gameDto.getFlaggedCell().getColumn();
+                Boolean[][] visibleCells = boardDto.getVisibleCells();
+                Boolean[][] flaggedCells = boardDto.getFlaggedCells();
+                // Only flag a hidden cell
+                if (!visibleCells[x][y]) {
+                    if (flaggedCells[x][y])
+                        flaggedCells[x][y] = Boolean.FALSE;
+                    else
+                        flaggedCells[x][y] = Boolean.TRUE;
+                    boardDto.setFlaggedCells(flaggedCells);
+                }
             }
             //queriedGame.setCells(cellList);
 
@@ -134,7 +153,7 @@ public class GameService {
             mappedGameDto.setCells(cellDtoList);
             return mappedGameDto;
         }
-        throw new GameNotFoundException("Game not found");
+        throw new NotFoundException("Game not found");
     }
 
     private List<Cell> generateBoard(int rows, int columns, Game gameSaved) {
@@ -147,8 +166,9 @@ public class GameService {
                         .setGame(gameSaved)
                         .setRow(i)
                         .setColumn(j)
-                        .setState(CellState.EMPTY.label)
-                        .setVisible(Boolean.FALSE);
+                        .setVisible(Boolean.FALSE)
+                        .setFlagged(Boolean.FALSE)
+                        .setState(CellState.EMPTY.label);
                 Cell cellSaved = cellRepository.save(cell);
                 cellList.add(cellSaved);
                 count++;
@@ -159,6 +179,7 @@ public class GameService {
 
     private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
+        Boolean[][] flaggedCells = boardDto.getFlaggedCells();
         String[][] cells = boardDto.getCells();
         List<Cell> cellList = new ArrayList<>(rows * columns);
         long count = 1;
@@ -170,7 +191,7 @@ public class GameService {
                         .setRow(i)
                         .setColumn(j)
                         .setVisible(visibleCells[i][j])
-                        // TODO When user flag a cell
+                        .setFlagged(flaggedCells[i][j])
                         .setState(cells[i][j]);
                 Cell cellSaved = cellRepository.save(cell);
                 cellList.add(cellSaved);

@@ -12,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     public final ResponseEntity handleUserNotFoundException(Exception ex, WebRequest request) {
         return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
@@ -20,11 +20,6 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     public final ResponseEntity handleUserAlreadyExistsException(Exception ex, WebRequest request) {
         return new ResponseEntity(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(GameNotFoundException.class)
-    public final ResponseEntity handleGameNotFoundException(Exception ex, WebRequest request) {
-        return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 }

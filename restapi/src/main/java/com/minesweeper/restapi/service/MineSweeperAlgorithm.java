@@ -30,21 +30,23 @@ public class MineSweeperAlgorithm {
         return cellSet;
     }*/
 
-    protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines) {
+    protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines, int selectedX, int selectedY) {
         int i = 0;
         while (i < mines) {
-            int x = random.nextInt(columns - 1);
-            int y = random.nextInt(rows - 1);
-            if (CellState.MINE.label != (cells[x][y])) {
-                cells[x][y] = CellState.MINE.label;
-                i++;
+            int x = random.nextInt(rows - 1);
+            int y = random.nextInt(columns - 1);
+            // Avoid to put a mine in first selected cell
+            if (x != selectedX && y != selectedY) {
+                if (CellState.MINE.label != (cells[x][y])) {
+                    cells[x][y] = CellState.MINE.label;
+                    i++;
+                }
             }
         }
         return cells;
     }
 
     protected static String[][] numberGenerator(String[][] cells, int rows, int columns) {
-        int value = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 if (CellState.MINE.label.equals(cells[i][j])) {
@@ -71,16 +73,17 @@ public class MineSweeperAlgorithm {
 
     protected static BoardDto checkSelectedCell(BoardDto boardDto, int x, int y, int mines) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
+        Boolean[][] flaggedCells = boardDto.getFlaggedCells();
         String[][] cells = boardDto.getCells();
-        if (!visibleCells[x][y] && !CellState.FLAGGED.label.equals(cells[x][y])) {
+        if (!visibleCells[x][y] && !flaggedCells[x][y]) {
             visibleCells[x][y] = true;
 
             // Clicked on a mine, game over!
-            if (CellState.MINE.equals(cells[x][y])) {
+            if (CellState.MINE.label.equals(cells[x][y])) {
                 boardDto.setEndMessage("Game Over");
             }
             // Clicked on a empty cell, maybe won or continue
-            else if (CellState.EMPTY.equals(cells[x][y])) {
+            else if (CellState.EMPTY.label.equals(cells[x][y])) {
                 boardDto.setVisibleCount(boardDto.getVisibleCount()+1);
                 if (gameWon(boardDto.getVisibleCount(), mines, cells.length, cells[x].length)) {
                     boardDto.setEndMessage("You won");

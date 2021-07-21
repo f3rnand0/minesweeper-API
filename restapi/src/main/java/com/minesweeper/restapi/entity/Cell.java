@@ -29,16 +29,19 @@ public class Cell {
 
     private Boolean visible;
 
+    private Boolean flagged;
+
     private String state;
 
     public Cell(Long id) {
         this.id = id;
     }
 
-    public Cell(Integer row, Integer column, Boolean visible, String state) {
+    public Cell(Integer row, Integer column, Boolean visible, Boolean flagged, String state) {
         this.row = row;
         this.column = column;
         this.visible = visible;
+        this.flagged = flagged;
         this.state = state;
     }
 }
