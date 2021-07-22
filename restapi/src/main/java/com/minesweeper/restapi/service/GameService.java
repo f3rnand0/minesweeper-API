@@ -48,8 +48,7 @@ public class GameService {
                     .setRows(rows)
                     .setColumns(columns)
                     .setMines(gameDto.getMines())
-                    .setGameTurn(GameTurn.ZERO)
-                    .setSelectedCell(new Cell(1L));
+                    .setGameTurn(GameTurn.ZERO);
             Game gameSaved = gameRepository.save(game);
             List<Cell> cellList = generateBoard(rows, columns, gameSaved);
 

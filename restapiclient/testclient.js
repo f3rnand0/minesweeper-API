@@ -1,62 +1,101 @@
 //import { getUser, getUserList, addUser } from './apiclient.js';
 const api = require('./apiclient');
+const prompt = require("prompt-sync")();
 
-let name1 = "Sample 1";
-let name2 = "Sample 2";
-let name3 = "Sample 3";
-let user1 = { name: name1 };
-let user2 = { name: name2 };
-let user3 = { name: name3 };
-let game = { rows: 3, columns: 3, "mines": 2, "gameTurn": "ZERO", user1 };
-
-async function testAddUser() {
-  let response = await api.addUser(user1);
-  console.log("addUser status: " + response.status);
-  console.log("addUser data: " + JSON.stringify(response.data));
-}
-
-async function testGetUser() {
-  let response = await api.getUser(name1);
-  console.log("getUser status: " + response.status);
-  console.log("getUser data: " + JSON.stringify(response.data));
-}
-
-async function testGetUserList() {
-  let response = await api.getUserList();
-  console.log("getUserList status: " + response.status);
-  console.log("getUserList data: " + JSON.stringify(response.data));
-}
-
-async function testAddGame() {
-  let response = await api.addGame(game);
-  console.log("addGame status: " + response.status);
-  console.log("addGame data: " + JSON.stringify(response.data));
-}
+const API_ÜRL = "http://localhost:8080/minesweeper-api/";
+const USER_GET = API_ÜRL + "user/";
+const USER_GET_LIST = API_ÜRL + "user/list/";
+const USER_ADD = API_ÜRL + "user/add/";
+const GAME_ADD = API_ÜRL + "game/add/";
+const GAME_MODIFY = API_ÜRL + "game/modify/";
 
 async function main() {
-  await Promise.all([
-/*    testAddUser(),
-    testGetUser(),
-    testAddUser(),
-    testAddUser(),
-    testGetUserList()
-    testAddGame()
-  ])*/
-    (async() => {
-      let response = await api.addUser(user1);
-      console.log("addUser status: " + response.status);
-      console.log("addUser data: " + JSON.stringify(response.data));
+  gameParams = readGameParams();
 
-      response = await api.getUser(name1);
-      console.log("getUser status: " + response.status);
-      console.log("getUser data: " + JSON.stringify(response.data));
+  let game = {
+    rows: gameParams.rows, columns: gameParams.columns, mines: gameParams.mines, gameTurn: "ZERO",
+    user: {
+      //name: gameParams.name
+      name: "anonymous"
+    }
+  }
 
-      response = await api.getUserList();
-      console.log("getUserList status: " + response.status);
-      console.log("getUserList data: " + JSON.stringify(response.data));
-    })()
-  ])
-  
+  let data = await startGame(game)
+    .catch(e => {
+      console.log('There has been a problem starting the game: ' + e.message);
+    });
+
+  let cells = data.cells;
+  //console.log(JSON.stringify(data.cells));
+
+  let table = [];
+  let index = 0;
+  for (let i = 0; i < gameParams.rows; i++) {
+    for (let j = 0; j < gameParams.columns; j++) {
+      let cell = cells[index];
+      item = {};
+      if (cell.visible)
+        item[j.toString()] = cell.state;
+      else
+        item[j.toString()] = 'empty';
+      //item['flagged'] = cell.flagged;
+      table.push(item);
+      index++;
+    }
+  }
+
+  console.table(table);
+
+  /*let params = { id: 1 }
+  api.callApiGet(USER_GET + "anonymous")
+    .then((response) => console.log(response.data));*/
+
+
+  /*let user = { name: "anonymous1" }
+  response = api.callApiPost(USER_ADD, user);
+  console.log(response)*/
+
+}
+
+function generateTable() {
+  var viewData = {
+    cells: []
+  };
+
+  onGeneratedRow({ "1":  });
+
+  function onGeneratedRow(columns) {
+    var jsonData = {};
+    columns.forEach(function (column) {
+      var columnName = column.metadata.colName;
+      jsonData[columnName] = column.value;
+    });
+    viewData.cells.push(jsonData);
+  }
+}
+
+function readGameParams() {
+  const name = prompt("What is your name? ");
+  console.log("Name: " + name);
+  const rows = prompt("Indicate number of rows (greater than 3): ");
+  console.log("Rows: " + rows);
+  const columns = prompt("Indicate number of columns (greater than 3): ");
+  console.log("Columns: " + columns);
+  const mines = prompt("Indicate number of mines (greater than 2): ");
+  console.log("Mines: " + mines);
+  if (rows < 3 || columns < 3 || mines < 2) {
+    console.error("Rows, columns or mines are not greater that indicated number");
+    process.exit(1);
+  }
+  return { name: name, rows: rows, columns: columns, mines: mines };
+}
+
+async function startGame(game) {
+  let response = await api.callApiPost(GAME_ADD, game)
+  if (!response) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.data;
 }
 
 main();

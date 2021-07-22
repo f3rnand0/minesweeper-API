@@ -1,12 +1,37 @@
+//import { callApiGet } from './apiclient.js'
+
+const API_ÜRL = "http://localhost:8080/minesweeper-api/";
+const USER_GET = API_ÜRL + "user/get";
+const USER_GET_LIST = API_ÜRL + "user/list";
+const USER_ADD = API_ÜRL + "user/add";
+const GAME_ADD = API_ÜRL + "game/add";
+const GAME_MODIFY = API_ÜRL + "game/modify";
+
 // Used by index.html
-function startGame(name) {
-  document.getElelementByID("name").value=name;
+function startGame(name, rows, columns, mines) {
+  document.getElelementByID("name").value = name;
+  document.getElelementByID("rows").value = rows;
+  document.getElelementByID("columns").value = columns;
+  document.getElelementByID("mines").value = mines;
   document.index.submit();
 }
 
+function setupGame() {
+  loadBoardVariables();
+  let user = { name: info.name }
+  //let response = callApiPost(USER_ADD, user);
+  //console.log(response)
+}
+
 // Used by game.html
-function createBoard(){
-  document.getElementById('name').value = getUrlVars().name;
+function loadBoardVariables(){
+  // Load variables to generate board
+  let info = getUrlVars();
+  document.getElementById('name').value = info.name;
+  document.getElementById('rows').value = info.rows;
+  document.getElementById('columns').value = info.columns;
+  document.getElementById('mines').value = info.mines;
+  
   /*let canvas = document.getElementById('gameCanvas')
   let ctx = canvas.getContext('2d')
   document.addEventListener('DOMContentLoaded', init)
@@ -26,46 +51,3 @@ function getUrlVars() {
   });
   return vars;
 }
-
-function drawGrid(weight, height, canvas, ctx, spacing) {
-  canvas.width  = weight;
-  canvas.height = height;
-
-  ctx.beginPath();
-
-  //ctx.strokeStyle = 'rgb(0, 0, 0, 0.35)';
-  ctx.strokeStyle = 'lightgrey';
-  //ctx.lineWidth = 10;
-
-  for (var x=0; x<=weight; x+=spacing) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-   }
-
-    for (var y=0;y<=height;y+=spacing) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(weight, y);
-    }
-  ctx.stroke();
-};
-
-function getMousePos(canvas, evt){
-  var rect = canvas.getBoundingClientRect();
-
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
-}
-
-function getGridLocation(posX, posY, gridsize)
-{
-  var cellRow = Math.floor(posY / gridsize);
-  var cellColumn = Math.floor(posX / gridsize);
-
-  return {
-    row: cellRow,
-    column: cellColumn
- };
-}
-

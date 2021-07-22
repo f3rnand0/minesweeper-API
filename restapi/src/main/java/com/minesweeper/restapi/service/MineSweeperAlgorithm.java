@@ -2,6 +2,7 @@ package com.minesweeper.restapi.service;
 
 import com.minesweeper.restapi.dto.BoardDto;
 import com.minesweeper.restapi.entity.CellState;
+import com.minesweeper.restapi.entity.GameMessages;
 
 import java.util.Random;
 import java.util.function.Function;
@@ -80,13 +81,13 @@ public class MineSweeperAlgorithm {
 
             // Clicked on a mine, game over!
             if (CellState.MINE.label.equals(cells[x][y])) {
-                boardDto.setEndMessage("Game Over");
+                boardDto.setEndMessage(GameMessages.LOST.label);
             }
             // Clicked on a empty cell, maybe won or continue
             else if (CellState.EMPTY.label.equals(cells[x][y])) {
                 boardDto.setVisibleCount(boardDto.getVisibleCount()+1);
                 if (gameWon(boardDto.getVisibleCount(), mines, cells.length, cells[x].length)) {
-                    boardDto.setEndMessage("You won");
+                    boardDto.setEndMessage(GameMessages.WON.label);
                 }
 
                 // Else simply recurse around
@@ -104,7 +105,7 @@ public class MineSweeperAlgorithm {
             else {
                 boardDto.setVisibleCount(boardDto.getVisibleCount()+1);
                 if (gameWon(boardDto.getVisibleCount(), mines, cells.length, cells[x].length)) {
-                    boardDto.setEndMessage("You won");
+                    boardDto.setEndMessage(GameMessages.WON.label);
                 }
             }
         }

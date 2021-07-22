@@ -34,10 +34,6 @@ public class Game {
 
     private GameTurn gameTurn;
 
-    @OneToOne
-    @MapsId
-    private Cell selectedCell;
-
     @Column(name = "date_started")
     private Timestamp dateStarted;
 
