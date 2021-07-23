@@ -16,7 +16,7 @@ public class ApiConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loggerInterceptor);
+        registry.addInterceptor(loggerInterceptor).addPathPatterns("/minesweeper-api/*/");
     }
 
     @Bean
