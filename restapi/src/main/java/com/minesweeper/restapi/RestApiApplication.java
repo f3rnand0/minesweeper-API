@@ -10,16 +10,16 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class RestApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RestApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(RestApiApplication.class, args);
+    }
 
-	@Bean
-	CommandLineRunner init(UserRepository userRepository) {
-		return args -> {
-			//Create anonymous user
-			User user = new User("anonymous");
-			userRepository.save(user);
-		};
-	}
+    @Bean
+    CommandLineRunner init(UserRepository userRepository) {
+        return args -> {
+            //Create anonymous user
+            User user = new User("anonymous");
+            userRepository.save(user);
+        };
+    }
 }

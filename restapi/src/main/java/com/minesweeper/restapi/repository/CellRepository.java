@@ -1,8 +1,6 @@
 package com.minesweeper.restapi.repository;
 
 import com.minesweeper.restapi.entity.Cell;
-import com.minesweeper.restapi.entity.Game;
-import com.minesweeper.restapi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

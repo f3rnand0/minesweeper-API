@@ -31,7 +31,8 @@ public class MineSweeperAlgorithm {
         return cellSet;
     }*/
 
-    protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines, int selectedX, int selectedY) {
+    protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines,
+                                              int selectedX, int selectedY) {
         int i = 0;
         while (i < mines) {
             int x = random.nextInt(rows - 1);
@@ -59,7 +60,8 @@ public class MineSweeperAlgorithm {
                                     if (CellState.EMPTY.label.equals(cells[i + k][j + l]))
                                         cells[i + k][j + l] = String.valueOf(1);
                                     else
-                                        cells[i + k][j + l] = String.valueOf(Integer.valueOf(cells[i + k][j + l]) + 1);
+                                        cells[i + k][j + l] =
+                                                String.valueOf(Integer.valueOf(cells[i + k][j + l]) + 1);
                                 }
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 // Do nothing
@@ -85,7 +87,7 @@ public class MineSweeperAlgorithm {
             }
             // Clicked on a empty cell, maybe won or continue
             else if (CellState.EMPTY.label.equals(cells[x][y])) {
-                boardDto.setVisibleCount(boardDto.getVisibleCount()+1);
+                boardDto.setVisibleCount(boardDto.getVisibleCount() + 1);
                 if (gameWon(boardDto.getVisibleCount(), mines, cells.length, cells[x].length)) {
                     boardDto.setEndMessage(GameMessages.WON.label);
                 }
@@ -103,7 +105,7 @@ public class MineSweeperAlgorithm {
             }
             // Clicked on a numbered, visible, or flagged cell
             else {
-                boardDto.setVisibleCount(boardDto.getVisibleCount()+1);
+                boardDto.setVisibleCount(boardDto.getVisibleCount() + 1);
                 if (gameWon(boardDto.getVisibleCount(), mines, cells.length, cells[x].length)) {
                     boardDto.setEndMessage(GameMessages.WON.label);
                 }

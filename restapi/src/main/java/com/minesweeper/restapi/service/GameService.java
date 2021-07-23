@@ -17,8 +17,10 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -41,31 +43,34 @@ public class GameService {
         int rows = gameDto.getRows();
         int columns = gameDto.getColumns();
         Optional<User> user = userRepository.findByName(gameDto.getUser().getName());
+        User queriedUser;
+        // If the user is not stored, saved it
+        if (!user.isPresent()) {
+            User newUser = new User(gameDto.getUser().getName());
+            queriedUser = userRepository.save(newUser);
+        } else
+            queriedUser = user.get();
 
-        // Store a game only if a user associated exist
-        if (user.isPresent()) {
-            Game game = new Game()
-                    .setRows(rows)
-                    .setColumns(columns)
-                    .setMines(gameDto.getMines())
-                    .setGameTurn(GameTurn.ZERO);
-            Game gameSaved = gameRepository.save(game);
-            List<Cell> cellList = generateBoard(rows, columns, gameSaved);
+        Game game = new Game()
+                .setRows(rows)
+                .setColumns(columns)
+                .setMines(gameDto.getMines())
+                .setGameTurn(GameTurn.ZERO);
+        Game gameSaved = gameRepository.save(game);
+        List<Cell> cellList = generateBoard(rows, columns, gameSaved);
 
-            // Store game into user table
-            gameSaved.setUser(user.get());
-            gameRepository.save(gameSaved);
+        // Store game into user table
+        gameSaved.setUser(queriedUser);
+        gameRepository.save(gameSaved);
 
-            // Store game and corresponding cells
-            GameDto respGameDto = modelMapper.map(gameSaved, GameDto.class);
-            respGameDto.setUser(modelMapper.map(user.get(), UserDto.class));
-            List<CellDto> cellDtoList =
-                    cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
-                            .collect(Collectors.toList());
-            respGameDto.setCells(cellDtoList);
-            return respGameDto;
-        }
-        throw new NotFoundException("User not found");
+        // Store game and corresponding cells
+        GameDto respGameDto = modelMapper.map(gameSaved, GameDto.class);
+        respGameDto.setUser(modelMapper.map(queriedUser, UserDto.class));
+        List<CellDto> cellDtoList =
+                cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
+                        .collect(Collectors.toList());
+        respGameDto.setCells(cellDtoList);
+        return respGameDto;
     }
 
     public GameDto modifyGame(GameDto gameDto) {
@@ -87,7 +92,8 @@ public class GameService {
                 String[][] cells = boardDto.getCells();
                 cells = MineSweeperAlgorithm.mineGenerator(cells,
                                                            rows,
-                                                           columns, queriedGame.getMines(), gameDto.getSelectedCell().getRow(),
+                                                           columns, queriedGame.getMines(),
+                                                           gameDto.getSelectedCell().getRow(),
                                                            gameDto.getSelectedCell().getColumn());
                 cells = MineSweeperAlgorithm.numberGenerator(cells,
                                                              rows,
@@ -107,9 +113,10 @@ public class GameService {
             // Only do actions related to a selected cell when a user dont flag cell
             if (gameDto.getFlaggedCell() == null) {
                 // Check surrounding cells of selected cell and do the corresponding action
-                boardDto = MineSweeperAlgorithm.checkSelectedCell(boardDto, gameDto.getSelectedCell().getRow(),
-                                                                  gameDto.getSelectedCell().getColumn(),
-                                                                  mines);
+                boardDto =
+                        MineSweeperAlgorithm.checkSelectedCell(boardDto, gameDto.getSelectedCell().getRow(),
+                                                               gameDto.getSelectedCell().getColumn(),
+                                                               mines);
                 cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
                 queriedGame.setCells(cellList);
                 queriedGame.setVisibleCount(boardDto.getVisibleCount());
@@ -119,7 +126,12 @@ public class GameService {
                     queriedGame.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
                     long elapsedTime = Duration.between(queriedGame.getDateStarted().toInstant(),
                                                         queriedGame.getDateFinished().toInstant()).toMillis();
-                    queriedGame.setElapsedTime(new Time(elapsedTime));
+                    String duration = String.format("%d min, %d sec",
+                                  TimeUnit.MILLISECONDS.toMinutes(elapsedTime),
+                                  TimeUnit.MILLISECONDS.toSeconds(elapsedTime) -
+                                  TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(elapsedTime))
+                    );
+                    queriedGame.setElapsedTime(duration);
                 }
             }
             // Only change the corresponding cell to flagged state and nothing else

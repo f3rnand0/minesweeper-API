@@ -3,7 +3,8 @@ package com.minesweeper.restapi;
 import com.minesweeper.restapi.dto.CellDto;
 import com.minesweeper.restapi.dto.GameDto;
 import com.minesweeper.restapi.dto.UserDto;
-import com.minesweeper.restapi.entity.*;
+import com.minesweeper.restapi.entity.CellState;
+import com.minesweeper.restapi.entity.GameTurn;
 import com.minesweeper.restapi.repository.GameRepository;
 import com.minesweeper.restapi.service.GameService;
 import org.junit.Before;
@@ -22,14 +23,11 @@ import static org.junit.Assert.*;
 @SpringBootTest
 public class GameServiceTest {
 
+    private static final String DEFAULT_USER = "anonymous";
     @Autowired
     GameRepository gameRepository;
-
     @Autowired
     GameService gameService;
-
-    private static final String DEFAULT_USER = "anonymous";
-
     private GameDto gameDtoSaved;
 
     @Before
@@ -64,7 +62,7 @@ public class GameServiceTest {
 //        gameDto.setUser(new UserDto(DEFAULT_USER));
 //        GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
-        gameDtoSaved.setSelectedCell(new CellDto(2,2));
+        gameDtoSaved.setSelectedCell(new CellDto(2, 2));
         gameDtoSaved = gameService.modifyGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long minesCount = cellDtoList.stream().filter(c -> c.getState().equals(CellState.MINE.label)).count();
@@ -82,14 +80,13 @@ public class GameServiceTest {
     @Test
     public void shouldWinOrLoseGame() {
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
-        gameDtoSaved.setSelectedCell(new CellDto(2,2));
+        gameDtoSaved.setSelectedCell(new CellDto(2, 2));
         gameDtoSaved = gameService.modifyGame(gameDtoSaved);
         if ("".equals(gameDtoSaved.getEndMessage())) {
             gameDtoSaved.setGameTurn(GameTurn.LATER);
-            gameDtoSaved.setSelectedCell(new CellDto(2,1));
+            gameDtoSaved.setSelectedCell(new CellDto(2, 1));
             gameDtoSaved = gameService.modifyGame(gameDtoSaved);
-        }
-        else
+        } else
             assertTrue("Game ended", !"".equals(gameDtoSaved.getEndMessage()));
     }
 }

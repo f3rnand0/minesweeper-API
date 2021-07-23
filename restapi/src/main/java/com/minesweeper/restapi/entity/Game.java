@@ -41,7 +41,7 @@ public class Game {
     private Timestamp dateFinished;
 
     @Column(name = "elapsed_time")
-    private Time elapsedTime;
+    private String elapsedTime;
 
     private String endMessage;
 

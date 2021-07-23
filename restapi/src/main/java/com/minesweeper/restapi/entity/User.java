@@ -7,7 +7,6 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -16,16 +15,15 @@ import java.util.Set;
 @Accessors(chain = true)
 public class User {
 
-    public User(String name) {
-        this.name = name;
-    }
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private List<Game> games;
-
     private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
 }

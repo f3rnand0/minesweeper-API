@@ -10,7 +10,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/minesweeper-api/game")
@@ -29,9 +32,7 @@ public class GameController {
             @ApiResponse(responseCode = "201", description = "Start a game based on specific rows, columns " +
                                                              "and mines",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = GameDto.class))}),
-            @ApiResponse(responseCode = "400", description = "User not found",
-                    content = @Content)})
+                            schema = @Schema(implementation = GameDto.class))})})
     @PostMapping("/add")
     public ResponseEntity<GameDto> addGame(@RequestBody GameDto gameDto) {
         return new ResponseEntity<GameDto>(gameService.addGame(gameDto), HttpStatus.CREATED);
@@ -46,8 +47,8 @@ public class GameController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Modify a game based on selected cell of the " +
                                                              "board and depending on the player turn",
-                    content= {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = GameDto.class))}),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GameDto.class))}),
             @ApiResponse(responseCode = "404", description = "Game not found",
                     content = @Content)})
     @PostMapping("/modify")
