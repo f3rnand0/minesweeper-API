@@ -1,4 +1,3 @@
-//import { getUser, getUserList, addUser } from './apiclient.js';
 const api = require('./apiclient');
 const util = require('./util')
 
@@ -9,6 +8,9 @@ const USER_ADD = API_ÜRL + "user/add/";
 const GAME_ADD = API_ÜRL + "game/add/";
 const GAME_MODIFY = API_ÜRL + "game/modify/";
 
+/**
+ * Main function
+ */
 async function main() {
   gameParams = util.readGameParams();
 
@@ -56,6 +58,11 @@ async function main() {
 
 }
 
+/**
+ * Starts a game by calling the minesweeper-api "game/add" method
+ * @param {*} gameParams Json object with game parameters like name, rows, columns, and mines
+ * @returns Json object with game id and board based on specific rows and columns
+ */
 async function startGame(gameParams) {
   let game = {
     rows: gameParams.rows, columns: gameParams.columns, mines: gameParams.mines, gameTurn: "ZERO",
@@ -75,6 +82,13 @@ async function startGame(gameParams) {
   return { gameId, table };
 }
 
+/**
+ * Continues a game by calling the minesweeper-api "game/modify" method
+ * @param {*} gameParams Json object with game parameters like name, rows, columns, and mines
+ * @param {*} gameId Id of the game in progress
+ * @param {*} gameTurn Turn of the game (FIRST or LATER)
+ * @returns 
+ */
 async function continueGame(gameParams, gameId, gameTurn) {
   let option = util.readSelectedAction();
   let selectedCell = util.readSelectedCell(gameParams.rows, gameParams.columns);

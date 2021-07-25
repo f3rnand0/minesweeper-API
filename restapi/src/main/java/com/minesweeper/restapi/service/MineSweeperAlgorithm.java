@@ -5,40 +5,30 @@ import com.minesweeper.restapi.entity.CellState;
 import com.minesweeper.restapi.entity.GameMessages;
 
 import java.util.Random;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class MineSweeperAlgorithm {
 
     private static Random random = new Random();
 
-    /*public static List<Cell> mineGenerator(List<Cell> cellSet, int rows, int columns, int mineNumber) {
-        int i = 0;
-        while (i < mineNumber) {
-            int x = random.nextInt(columns - 1);
-            int y = random.nextInt(rows - 1);
-            Predicate<Cell> filterCellXY = c -> c.getRow().equals(x) && c.getColumn().equals(y);
-            //cellSet.stream().flatMap(filterAndMap(predicate, c -> c.setState(CellState.MINE))).findFirst
-            ().get();
-            Cell cell = cellSet.stream().filter(filterCellXY).findFirst().get();
-            if (!CellState.MINE.equals(cell.getState())) {
-                cellSet.stream().filter(c -> c.getRow().equals(x) && c.getColumn().equals(y))
-                        .map(c -> c.setState(CellState.MINE));
-                i++;
-            }
-        }
-        return cellSet;
-    }*/
-
+    /**
+     * Generate random mines according to number of rows, columns and mines
+     *
+     * @param cells     Arrays with cell states
+     * @param rows      Number of rows
+     * @param columns   Number of columns
+     * @param mines     Number of mines
+     * @param selectedX X position of the first selected cell
+     * @param selectedY Y position of the first selected cell
+     * @return Array of initial cell states, including mines
+     */
     protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines,
                                               int selectedX, int selectedY) {
         int i = 0;
         while (i < mines) {
-            int x = random.nextInt(rows - 1);
-            int y = random.nextInt(columns - 1);
+            int x = random.nextInt(rows);
+            int y = random.nextInt(columns);
             // Avoid to put a mine in first selected cell
-            if (x != selectedX && y != selectedY) {
+            if (x != selectedX || y != selectedY) {
                 if (CellState.MINE.label != (cells[x][y])) {
                     cells[x][y] = CellState.MINE.label;
                     i++;
@@ -48,6 +38,14 @@ public class MineSweeperAlgorithm {
         return cells;
     }
 
+    /**
+     * Generate corresponding numbers on surrounding cells with mines
+     *
+     * @param cells   Arrays with cell states
+     * @param rows    Number of rows
+     * @param columns Number of columns
+     * @return Array of cell states, including numbers
+     */
     protected static String[][] numberGenerator(String[][] cells, int rows, int columns) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -74,6 +72,15 @@ public class MineSweeperAlgorithm {
         return cells;
     }
 
+    /**
+     * Show a cell or cells, or finish the game based on the selected cell
+     *
+     * @param boardDto
+     * @param x        X position of the selected cell
+     * @param y        Y position of the selected cell
+     * @param mines    Number of mines
+     * @return Arrays of cell states updated
+     */
     protected static BoardDto checkSelectedCell(BoardDto boardDto, int x, int y, int mines) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();
@@ -116,44 +123,16 @@ public class MineSweeperAlgorithm {
         return boardDto;
     }
 
+    /**
+     * Validates if the number of visible cells plus mines is equal to the total number of cells
+     *
+     * @param visibleCount Number of visible cells
+     * @param mines        Number of mines
+     * @param rows         Number of rows
+     * @param columns      Number of mines
+     * @return Boolean indicating if the game has finished
+     */
     private static boolean gameWon(int visibleCount, int mines, int rows, int columns) {
         return (visibleCount + mines) == (rows * columns);
-    }
-
-    /*protected static void numberGenerator(Character[][] cells, int rows, int columns) {
-            for (int i = 0; i < columns; i++) {
-                for (int j = 0; j < rows; j++) {
-                    if (CellState.MINE.label != (cells[i][j]))
-                        cells[i][j] = (char) (countSurround(cells, i, j, rows, columns) + 48);
-                    if (cells[i][j] == '0')
-                        cells[i][j] = CellState.HIDDEN.label;
-                }
-            }
-     }
-
-    private static int countSurround(String[][] cells, int i, int j, int rows, int columns) {
-        int count = 0;
-        if (i + 1 != columns && cells[i + 1][j] == CellState.MINE.label)
-            count++;
-        if (i + 1 != columns && j + 1 != rows && cells[i + 1][j + 1] == CellState.MINE.label)
-            count++;
-        if (i - 1 != -1 && j + 1 != rows && cells[i - 1][j + 1] == CellState.MINE.label)
-            count++;
-        if (i + 1 != columns && j - 1 != -1 && cells[i + 1][j - 1] == CellState.MINE.label)
-            count++;
-        if (i - 1 != -1 && j - 1 != -1 && cells[i - 1][j - 1] == CellState.MINE.label)
-            count++;
-        if (i - 1 != -1 && cells[i - 1][j] == CellState.MINE.label)
-            count++;
-        if (j + 1 != rows && cells[i][j + 1] == CellState.MINE.label)
-            count++;
-        if (j - 1 != -1 && cells[i][j - 1] == CellState.MINE.label)
-            count++;
-        return count;
-    }*/
-
-    private static <E, R> Function<E, Stream<R>> filterAndMap(Predicate<? super E> filter,
-                                                              Function<? super E, R> mapper) {
-        return e -> filter.test(e) ? Stream.of(mapper.apply(e)) : Stream.empty();
     }
 }

@@ -13,7 +13,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -39,6 +38,12 @@ public class GameService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Add a game in the database based on the game parameters indicated
+     *
+     * @param gameDto Dto with game parameters
+     * @return Dto with game parameters, game id and list of cells
+     */
     public GameDto addGame(GameDto gameDto) {
         int rows = gameDto.getRows();
         int columns = gameDto.getColumns();
@@ -57,9 +62,11 @@ public class GameService {
                 .setMines(gameDto.getMines())
                 .setGameTurn(GameTurn.ZERO);
         Game gameSaved = gameRepository.save(game);
+
+        // Generate a list cells with empty state
         List<Cell> cellList = generateBoard(rows, columns, gameSaved);
 
-        // Store game into user table
+        // Set used associated to game
         gameSaved.setUser(queriedUser);
         gameRepository.save(gameSaved);
 
@@ -73,6 +80,12 @@ public class GameService {
         return respGameDto;
     }
 
+    /**
+     * Modifies a game based on game id and a first selected cell
+     *
+     * @param gameDto Dto with game parameters
+     * @return Dto with game parameters, game id and list of cells (including states)
+     */
     public GameDto modifyGame(GameDto gameDto) {
         Optional<Game> game = gameRepository.findById(gameDto.getId());
         if (game.isPresent()) {
@@ -82,7 +95,8 @@ public class GameService {
             int rows = queriedGame.getRows();
             int columns = queriedGame.getColumns();
             int mines = queriedGame.getMines();
-            // Generate mines, numbers on first turn
+
+            // Generate mines and numbers on first turn
             if (GameTurn.FIRST.equals(gameDto.getGameTurn())) {
                 queriedGame.setGameTurn(gameDto.getGameTurn());
                 queriedGame.setDateStarted(new Timestamp(Instant.now().toEpochMilli()));
@@ -101,7 +115,9 @@ public class GameService {
                 boardDto.setCells(cells);
                 boardDto.setVisibleCount(0);
                 boardDto.setEndMessage("");
-            } else if (GameTurn.LATER.equals(gameDto.getGameTurn())) {
+            }
+            // If it's not the first turn get the list of cells before applying the algorithm
+            else if (GameTurn.LATER.equals(gameDto.getGameTurn())) {
                 cellList = cellRepository.findCellsByGameId(queriedGame.getId());
                 queriedGame.setGameTurn(gameDto.getGameTurn());
                 boardDto = DataStructureTransformer
@@ -110,7 +126,7 @@ public class GameService {
                 boardDto.setEndMessage("");
             }
 
-            // Only do actions related to a selected cell when a user dont flag cell
+            // Only do actions related to a selected cell when a user don't flag a cell
             if (gameDto.getFlaggedCell() == null) {
                 // Check surrounding cells of selected cell and do the corresponding action
                 boardDto =
@@ -120,21 +136,26 @@ public class GameService {
                 cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
                 queriedGame.setCells(cellList);
                 queriedGame.setVisibleCount(boardDto.getVisibleCount());
+                // Set end message in case the game finished
                 queriedGame.setEndMessage(boardDto.getEndMessage());
+
                 // Check if game ended
                 if (!"".equals(queriedGame.getEndMessage())) {
                     queriedGame.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
+                    // Set elapsed time of the game
                     long elapsedTime = Duration.between(queriedGame.getDateStarted().toInstant(),
                                                         queriedGame.getDateFinished().toInstant()).toMillis();
                     String duration = String.format("%d min, %d sec",
-                                  TimeUnit.MILLISECONDS.toMinutes(elapsedTime),
-                                  TimeUnit.MILLISECONDS.toSeconds(elapsedTime) -
-                                  TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(elapsedTime))
+                                                    TimeUnit.MILLISECONDS.toMinutes(elapsedTime),
+                                                    TimeUnit.MILLISECONDS.toSeconds(elapsedTime) -
+                                                    TimeUnit.MINUTES.toSeconds(
+                                                            TimeUnit.MILLISECONDS.toMinutes(elapsedTime))
                     );
                     queriedGame.setElapsedTime(duration);
                 }
             }
-            // Only change the corresponding cell to flagged state and nothing else
+
+            // Only change the corresponding cell to a flagged state and nothing else
             else {
                 int x = gameDto.getFlaggedCell().getRow();
                 int y = gameDto.getFlaggedCell().getColumn();
@@ -142,22 +163,21 @@ public class GameService {
                 Boolean[][] flaggedCells = boardDto.getFlaggedCells();
                 // Only flag a hidden cell
                 if (!visibleCells[x][y]) {
+                    // Flag a cell
                     if (flaggedCells[x][y])
                         flaggedCells[x][y] = Boolean.FALSE;
+                        // Otherwise unflag it
                     else
                         flaggedCells[x][y] = Boolean.TRUE;
                     boardDto.setFlaggedCells(flaggedCells);
                 }
             }
-            //queriedGame.setCells(cellList);
 
             // Store cells with modifications
             Game gameSaved = gameRepository.save(queriedGame);
             cellList = modifyBoard(boardDto, rows, columns, gameSaved);
             GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
-            // TODO En el gameSaved ya esta el usuario asociado
-            User userGame = gameRepository.findUserByGameId(gameSaved.getId());
-            mappedGameDto.setUser(modelMapper.map(userGame, UserDto.class));
+            mappedGameDto.setUser(modelMapper.map(gameSaved.getUser(), UserDto.class));
             List<CellDto> cellDtoList =
                     cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
                             .collect(Collectors.toList());
@@ -167,6 +187,14 @@ public class GameService {
         throw new NotFoundException("Game not found");
     }
 
+    /**
+     * Generates a list of cells on the first turn of the game
+     *
+     * @param rows      Number of rows
+     * @param columns   Number of columns
+     * @param gameSaved Entity with the game id
+     * @return List of cells saved in the database
+     */
     private List<Cell> generateBoard(int rows, int columns, Game gameSaved) {
         List<Cell> cellList = new ArrayList<>(rows * columns);
         long count = 1;
@@ -188,6 +216,15 @@ public class GameService {
         return cellList;
     }
 
+    /**
+     * Modifies the list of cells in the database
+     *
+     * @param boardDto  Dto containing arrays of visible, flagged and cell states
+     * @param rows      Number of rows
+     * @param columns   Number of columns
+     * @param gameSaved Entity with the game id
+     * @return List of cells saved in the database
+     */
     private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();

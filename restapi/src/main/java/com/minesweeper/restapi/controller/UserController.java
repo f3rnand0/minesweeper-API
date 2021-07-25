@@ -25,7 +25,7 @@ public class UserController {
      * Get user by name
      *
      * @param name Name of the user
-     * @return UserDto or error message
+     * @return UserDto or message error
      */
     @Operation(summary = "Get user by name")
     @ApiResponses(value = {
@@ -36,7 +36,7 @@ public class UserController {
                     content = @Content)})
     @GetMapping("/{name}")
     public ResponseEntity<UserDto> getUser(@PathVariable String name) {
-        return new ResponseEntity<UserDto>(userService.getUser(name), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUser(name), HttpStatus.OK);
     }
 
     /**
@@ -52,13 +52,13 @@ public class UserController {
                             @Schema(implementation = UserDto.class)))})})
     @GetMapping("/list")
     public ResponseEntity<List<UserDto>> getUserList() {
-        return new ResponseEntity<List<UserDto>>(userService.getUserList(), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserList(), HttpStatus.OK);
     }
 
     /**
      * Add a user
      *
-     * @return UserDto or error message
+     * @return UserDto or message error
      */
     @Operation(summary = "Add a user")
     @ApiResponses(value = {
@@ -69,7 +69,7 @@ public class UserController {
                     content = @Content)})
     @PostMapping("/add")
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
-        return new ResponseEntity<UserDto>(userService.addUser(userDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.addUser(userDto), HttpStatus.CREATED);
     }
 
 }

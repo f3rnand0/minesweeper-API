@@ -35,11 +35,11 @@ public class GameController {
                             schema = @Schema(implementation = GameDto.class))})})
     @PostMapping("/add")
     public ResponseEntity<GameDto> addGame(@RequestBody GameDto gameDto) {
-        return new ResponseEntity<GameDto>(gameService.addGame(gameDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(gameService.addGame(gameDto), HttpStatus.CREATED);
     }
 
     /**
-     * Modify cells depending the player turn
+     * Modify cells depending on the selected cell and the player turn
      *
      * @return GameDto
      */

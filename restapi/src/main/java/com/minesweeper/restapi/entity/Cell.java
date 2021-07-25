@@ -15,7 +15,6 @@ import javax.persistence.*;
 public class Cell {
     @Id
     @Column(name = "cell_id")
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -31,10 +30,6 @@ public class Cell {
     private Boolean flagged;
 
     private String state;
-
-    public Cell(Long id) {
-        this.id = id;
-    }
 
     public Cell(Integer row, Integer column, Boolean visible, Boolean flagged, String state) {
         this.row = row;

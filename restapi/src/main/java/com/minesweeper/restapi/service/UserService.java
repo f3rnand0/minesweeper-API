@@ -22,6 +22,12 @@ public class UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * Get a user of the database
+     *
+     * @param name Name of the user
+     * @return Dto of the user
+     */
     public UserDto getUser(String name) {
         Optional<User> user = userRepository.findByName(name);
         if (user.isPresent())
@@ -29,6 +35,11 @@ public class UserService {
         throw new NotFoundException("User not found");
     }
 
+    /**
+     * Get a list of all users
+     *
+     * @return List of sots of the users
+     */
     public List<UserDto> getUserList() {
         List<UserDto>
                 userList = userRepository.findAll().stream().map(user -> new UserDto(user.getName()))
@@ -36,6 +47,12 @@ public class UserService {
         return userList;
     }
 
+    /**
+     * Saves a user in the database
+     *
+     * @param userDto Dto of the user
+     * @return Dto of the user
+     */
     public UserDto addUser(UserDto userDto) {
         Optional<User> user = userRepository.findByName(userDto.getName());
         if (!user.isPresent()) {

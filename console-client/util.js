@@ -1,6 +1,10 @@
 const prompt = require("prompt-sync")();
 
 module.exports = {
+  /**
+   * Ask the user to indicate name, number of rows, number of columns and number of mines
+   * @returns Json object with the paramerts indciated by user
+   */
   readGameParams() {
     const name = prompt("What is your name? ");
     console.log("Name: " + name);
@@ -10,13 +14,17 @@ module.exports = {
     console.log("Columns: " + columns);
     const mines = prompt("Indicate number of mines (greater than 2): ");
     console.log("Mines: " + mines);
-    if (rows < 3 || columns < 3 || mines < 2) {
+    if (rows < 3 || columns < 3 || mines < 2 || mines > (rows*columns)) {
       console.error("Rows, columns or mines are not greater that indicated number");
       process.exit(1);
     }
     return { name: name, rows: rows, columns: columns, mines: mines };
   },
 
+  /**
+   * Ask the user to indicate if wants to select a cell or flag a cell
+   * @returns Integer with the option selected
+   */
   readSelectedAction() {
     let option = "";
     while (!Number.isInteger(option) || (option < 1 || option > 2)) {
@@ -30,6 +38,12 @@ module.exports = {
     return option;
   },
 
+  /**
+   * Ask the user to indicate name what row and columsn wants to select
+   * @param {*} rows Number of rows
+   * @param {*} columns Number of columns
+   * @returns Json object with a specific row and column
+   */
   readSelectedCell(rows, columns) {
     let row = "row";
     let column = "column";
@@ -45,6 +59,13 @@ module.exports = {
     return { row: row, column: column };
   },
 
+  /**
+   * Trasnforms into a json object more friendly to user to display the cells of the board
+   * @param {*} cells List of cells of the board at the moment
+   * @param {*} rows Number of rows
+   * @param {*} columns Number of columns
+   * @returns Array with the cells and its states at the moment
+   */
   transformJsonToTable(cells, rows, columns) {
     let table = [];
     let index = 0;
@@ -67,4 +88,3 @@ module.exports = {
     return table;
   }
 }
-

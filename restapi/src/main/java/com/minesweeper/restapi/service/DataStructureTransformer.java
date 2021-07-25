@@ -7,6 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataStructureTransformer {
+    /**
+     * Transforms arrays of visible, flagged and cell states into a list of Cell dtos
+     *
+     * @param boardDto Dto containing arrays of visible, flagged and cell states
+     * @param rows     Number of rows
+     * @param columns  numer of columns
+     * @return List of Cell dtos containing which cells are visible, which are flagged and its states
+     */
     protected static List<Cell> transformFromArraysIntoListDto(BoardDto boardDto, int rows, int columns) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();
@@ -20,6 +28,14 @@ public class DataStructureTransformer {
         return cellList;
     }
 
+    /**
+     * Transforms arrays of visible, flagged and cell states into a list of Cell dtos
+     *
+     * @param cellList List of Cell dtos containing which cells are visible, which are flagged and its states
+     * @param rows     Number of rows
+     * @param columns  Number of columns
+     * @ Dto containing arrays of visible, flagged and cell states
+     */
     protected static BoardDto transformFromListDtoIntoArrays(List<Cell> cellList, int rows, int columns) {
         Boolean[][] visibleCells = new Boolean[rows][columns];
         Boolean[][] flaggedCells = new Boolean[rows][columns];
