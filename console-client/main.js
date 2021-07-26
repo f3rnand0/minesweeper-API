@@ -1,7 +1,8 @@
 const api = require('./apiclient');
 const util = require('./util')
 
-const API_ÜRL = "http://localhost:8080/minesweeper-api/";
+const API_PORT = "8080";
+const API_ÜRL = "http://localhost:"+ API_PORT + "/minesweeper-api/";
 const USER_GET = API_ÜRL + "user/";
 const USER_GET_LIST = API_ÜRL + "user/list/";
 const USER_ADD = API_ÜRL + "user/add/";
@@ -90,9 +91,12 @@ async function startGame(gameParams) {
  * @returns 
  */
 async function continueGame(gameParams, gameId, gameTurn) {
-  let option = util.readSelectedAction();
-  let selectedCell = util.readSelectedCell(gameParams.rows, gameParams.columns);
+  let option = 1;
+  // Only ask to flag a cell on later turns
+  if (gameTurn === 'LATER')
+    option = util.readSelectedAction();
 
+  let selectedCell = util.readSelectedCell(gameParams.rows, gameParams.columns);
 
   let game = {}
   if (option === 1) {

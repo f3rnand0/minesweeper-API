@@ -14,8 +14,8 @@ module.exports = {
     console.log("Columns: " + columns);
     const mines = prompt("Indicate number of mines (greater than 2): ");
     console.log("Mines: " + mines);
-    if (rows < 3 || columns < 3 || mines < 2 || mines > (rows*columns)) {
-      console.error("Rows, columns or mines are not greater that indicated number");
+    if (rows < 3 || columns < 3 || mines < 2 || mines > (rows*columns - 2)) {
+      console.error("Rows, columns or mines are not greater that indicated number, or number of mines is greater (than the product of rows and columns minus 2)");
       process.exit(1);
     }
     return { name: name, rows: rows, columns: columns, mines: mines };

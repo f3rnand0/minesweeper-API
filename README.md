@@ -1,39 +1,53 @@
-# minesweeper-API
-API test
+# minesweeper
 
-We ask that you complete the following challenge to evaluate your development skills. Please use the programming language and framework discussed during your interview to accomplish the following task.
+This is a minesweeper game and set of applications. It is divided into the following:
+1.  restapi: a Spring boot rest API that can be used by any front-end application.
+  * Open API docs: http://localhost:8080/swagger-ui.html
+  * JSON API docs: http://localhost:8080/api-docs/
+  * YAML: http://localhost:8080/api-docs.yaml
 
-PLEASE DO NOT FORK THE REPOSITORY. WE NEED A PUBLIC REPOSITORY FOR THE REVIEW. 
+2.  restapiclient: a nodejs API client library that executes any endpoint exposed by the restapi application.
+3.  console-client: a nodejs program that runs on a shell and that simulates the minesweeper game. It uses the restapiclient library to execute the restapi endpoints.
+4.  ui-client: a not finished web frontend (HTML5, CSS, and Javascript) that will do the same as the console-client program.
 
-## The Game
-Develop the classic game of [Minesweeper](https://en.wikipedia.org/wiki/Minesweeper_(video_game))
+## Features
+* A documented RESTful API for the game (Spring boot and Java).
+* An API client library for the API developed above (NodeJS).
+* Based on the normal minesweeper game:
+     - The user initially indicates a name, number of rows, number of columns, and number of mines before starting the game.
+     - On the first turn the user selects a cell that can spawn many  empty cells, or numbers surrounding a mine.
+     - On the next turns the user can select or flag a cell. If the selected cell is a mine the game ends. Otherwise, many empty cells would be spawn, a numbered cell would be shown or the game will finish (when all the cells (except mines) have been clicked by the user).
+* Any visible cell can be flagged or unflagged by indicating the same cell.
+* The name of the user, and every turn of the game is being stored on an HSQL in-memory database. Another database vendor can be configured in restapi/src/main/resources/application.properties file.
+* The date and time when the game starts and is finished are being stored.
+* The amount of time taken to play a game is being stored in "x minutes, y seconds" format.
+* The name of the user is asked at the beginning, but also an "anonymous" user can be set at the beginning.
 
-## Show your work
+## Installation and usage
+### Development requirements (restapi)
+* JDK 11 or higher.
+* Maven 3.5.3 or higher.
+* IDE or your preference.
 
-1.  Create a Public repository ( please dont make a pull request, clone the private repository and create a new plublic one on your profile)
-2.  Commit each step of your process so we can follow your thought process.
+### Development requirements (restapiclient, console-client, ui-client)
+* NodeJS 10.19 or higher.
+* IDE or your preference.
 
-## What to build
-The following is a list of items (prioritized from most important to least important) we wish to see:
-* Design and implement  a documented RESTful API for the game (think of a mobile app for your API)
-* Implement an API client library for the API designed above. Ideally, in a different language, of your preference, to the one used for the API
-* When a cell with no adjacent mines is revealed, all adjacent squares will be revealed (and repeat)
-* Ability to 'flag' a cell with a question mark or red flag
-* Detect when game is over
-* Persistence
-* Time tracking
-* Ability to start a new game and preserve/resume the old ones
-* Ability to select the game parameters: number of rows, columns, and mines
-* Ability to support multiple users/accounts
- 
-## Deliverables we expect:
-* URL where the game can be accessed and played (use any platform of your preference: heroku.com, aws.amazon.com, etc)
-* Code in a public Github repo
-* README file with the decisions taken and important notes
+### Runtime requirements (restapi)
+* JDK 11 or higher.
+* Port 8080 available. If you want to change it, will need to do the following:
+  1. Modify the "server.port" property in "restapi/src/main/resources/application.properties" file.
+  2. Generate a new jar package, and copy it to the runtime folder.
+  3. Modify the API_PORT constant in the "console-client/main.js" file, and copy the entire folder to the runtime directory.
 
-## Time Spent
-You need to fully complete the challenge. We suggest not spending more than 3 days total.  Please make commits as often as possible so we can see the time you spent and please do not make one commit.  We will evaluate the code and time spent.
- 
-What we want to see is how well you handle yourself given the time you spend on the problem, how you think, and how you prioritize when time is sufficient to solve everything.
+### Runtime requirements (restapiclient, console-client, ui-client)
+* NodeJS 10.19 or higher.
+* Shell or your preference.
 
-Please email your solution as soon as you have completed the challenge or the time is up
+### Usage
+1.  Clone this repo.
+2.  Start a console/shell of your preference.
+3.  Go to runtime directory.
+4.  Execute "java -jar restapi-1.0.0.jar".
+5.  Start another console/shell.
+6.  From the runtime directory execute "node main.js". Enjoy!!

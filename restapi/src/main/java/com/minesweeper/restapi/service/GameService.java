@@ -175,7 +175,8 @@ public class GameService {
 
             // Store cells with modifications
             Game gameSaved = gameRepository.save(queriedGame);
-            cellList = modifyBoard(boardDto, rows, columns, gameSaved);
+            boolean gameFinished = !"".equals(gameSaved.getEndMessage());
+            cellList = modifyBoard(boardDto, rows, columns, gameSaved, gameFinished);
             GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
             mappedGameDto.setUser(modelMapper.map(gameSaved.getUser(), UserDto.class));
             List<CellDto> cellDtoList =
@@ -225,7 +226,8 @@ public class GameService {
      * @param gameSaved Entity with the game id
      * @return List of cells saved in the database
      */
-    private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved) {
+    private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved,
+                                   boolean gameFinished) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();
         String[][] cells = boardDto.getCells();
@@ -238,9 +240,14 @@ public class GameService {
                         .setGame(gameSaved)
                         .setRow(i)
                         .setColumn(j)
-                        .setVisible(visibleCells[i][j])
                         .setFlagged(flaggedCells[i][j])
                         .setState(cells[i][j]);
+                // If game not finished show only corresponding cells
+                if (!gameFinished)
+                    cell.setVisible(visibleCells[i][j]);
+                // If game finished show all cells
+                else
+                    cell.setVisible(Boolean.TRUE);
                 Cell cellSaved = cellRepository.save(cell);
                 cellList.add(cellSaved);
                 count++;
