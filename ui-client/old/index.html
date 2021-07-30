@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <title>Minesweeper UI</title>
+</head>
+
+<body>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script type="module" src="main.js"></script>
+  <form name="index" action="game.html">
+    <div class="container">
+      <h1>Minesweeper <small>by Fernando Guerra</h1>
+      <div class="container">
+        <div class="panel panel-primary">
+          <div class="panel-body">
+            <div style="height:50px; width:100%; clear:both;"></div>
+            <div class="col-sm-4 col-sm-offset-4">
+              <!--width is set by this div -->
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="inputGroup-sizing-default">Name</span>
+                </div>
+                <input name="name" type="text" class="form-control">
+              </div>
+            </div>
+            <div class="col-sm-3 col-sm-offset-3">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">Rows</span>
+              </div>
+              <input name="rows" type="text" class="form-control">
+            </div>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">Columns</span>
+              </div>
+              <input name="columns" type="text" class="form-control">
+            </div>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">Mines</span>
+              </div>
+              <input name="mines" type="text" class="form-control">
+            </div>
+            <div style="height:20px; width:100%; clear:both;"></div>
+            <input type="hidden" id="name">
+            <input type="hidden" id="rows">
+            <input type="hidden" id="columns">
+            <input type="hidden" id="mines">
+            <button class="btn btn-primary" onclick="startGame()">Start game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="footer"></div>
+    </div>
+  </form>
+</body>
+
+</html>

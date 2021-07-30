@@ -1,0 +1,10 @@
+{
+  "API_HOST": "localhost",
+  "API_PORT": 8080,
+  "API_ROOT": "/minesweeper-api/",
+  "USER_GET": "user/",
+  "USER_GET_LIST": "user/list/",
+  "USER_ADD": "user/add/",
+  "GAME_ADD": "game/add/",
+  "GAME_MODIFY": "game/modify/"
+}
