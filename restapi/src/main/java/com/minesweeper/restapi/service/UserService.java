@@ -29,10 +29,9 @@ public class UserService {
      * @return Dto of the user
      */
     public UserDto getUser(String name) {
-        Optional<User> user = userRepository.findByName(name);
-        if (user.isPresent())
-            return modelMapper.map(user.get(), UserDto.class);
-        throw new NotFoundException("User not found");
+        Optional<User> optionalUser = userRepository.findByName(name);
+        User user = optionalUser.orElseThrow(() -> new NotFoundException("User not found"));
+        return modelMapper.map(user, UserDto.class);
     }
 
     /**
@@ -54,12 +53,13 @@ public class UserService {
      * @return Dto of the user
      */
     public UserDto addUser(UserDto userDto) {
-        Optional<User> user = userRepository.findByName(userDto.getName());
-        if (!user.isPresent()) {
-            User newUser = new User(userDto.getName());
-            User userSaved = userRepository.save(newUser);
-            return modelMapper.map(userSaved, UserDto.class);
-        }
-        throw new AlreadyExistsException("User already exist");
+        Optional<User> optionalUser = userRepository.findByName(userDto.getName());
+        // Throw an exception because there's an existing user
+        optionalUser.ifPresent(u -> {
+            throw new AlreadyExistsException("User already exist");
+        });
+        User user = new User(userDto.getName());
+        User userSaved = userRepository.save(user);
+        return modelMapper.map(userSaved, UserDto.class);
     }
 }

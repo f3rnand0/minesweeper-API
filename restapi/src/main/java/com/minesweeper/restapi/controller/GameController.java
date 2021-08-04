@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/minesweeper-api/game")
@@ -23,14 +20,14 @@ public class GameController {
     private GameService gameService;
 
     /**
-     * Start a game
-     *
+     * Adds a game
      * @return GameDto
      */
-    @Operation(summary = "Start a game")
+    @Operation(summary = "Adds a game")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Start a game based on specific rows, columns " +
-                                                             "and mines",
+            @ApiResponse(responseCode = "201", description =
+                    "Adds a game based on specific player name, rows, columns " +
+                    "and mines",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = GameDto.class))})})
     @PostMapping("/add")
@@ -39,21 +36,53 @@ public class GameController {
     }
 
     /**
-     * Modify cells depending on the selected cell and the player turn
-     *
+     * Starts a game (first turn)
      * @return GameDto
      */
-    @Operation(summary = "Modify cells depending on the selected cell and the player turn")
+    @Operation(summary = "Starts a game based on the selected cell of the board. First turn of the player.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Modify a game based on selected cell of the " +
-                                                             "board and depending on the player turn",
+            @ApiResponse(responseCode = "201", description = "Starts a game based on the selected cell of " +
+                                                             "the board. First turn of the player.",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = GameDto.class))}),
             @ApiResponse(responseCode = "404", description = "Game not found",
                     content = @Content)})
-    @PostMapping("/modify")
-    public ResponseEntity<GameDto> modifyGame(@RequestBody GameDto gameDto) {
-        return new ResponseEntity<GameDto>(gameService.modifyGame(gameDto), HttpStatus.CREATED);
+    @PostMapping("/start")
+    public ResponseEntity<GameDto> startGame(@RequestBody GameDto gameDto) {
+        return new ResponseEntity<GameDto>(gameService.startGame(gameDto), HttpStatus.CREATED);
     }
 
+    /**
+     * Continues a game (later turns)
+     * @return GameDto
+     */
+    @Operation(summary = "Continues a game based on the selected cell of the board. Later turns of the " +
+                         "player.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Continues a game based on the selected cell of " +
+                                                             "the board. Later turns of the player.",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GameDto.class))}),
+            @ApiResponse(responseCode = "404", description = "Game not found",
+                    content = @Content)})
+    @PutMapping("/continue")
+    public ResponseEntity<GameDto> continueGame(@RequestBody GameDto gameDto) {
+        return new ResponseEntity<GameDto>(gameService.continueGame(gameDto), HttpStatus.CREATED);
+    }
+
+    /**
+     * Flags a indicated cell of the board
+     * @return GameDto
+     */
+    @Operation(summary = "Flags a indicated cell of the board.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Flags a indicated cell of the board.",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = GameDto.class))}),
+            @ApiResponse(responseCode = "404", description = "Game not found",
+                    content = @Content)})
+    @PatchMapping("/flag")
+    public ResponseEntity<GameDto> flagCellGame(@RequestBody GameDto gameDto) {
+        return new ResponseEntity<GameDto>(gameService.flagCellGame(gameDto), HttpStatus.CREATED);
+    }
 }

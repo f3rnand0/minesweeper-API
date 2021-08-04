@@ -23,7 +23,6 @@ public class UserController {
 
     /**
      * Get user by name
-     *
      * @param name Name of the user
      * @return UserDto or message error
      */
@@ -41,7 +40,6 @@ public class UserController {
 
     /**
      * Get list of users
-     *
      * @return List of UserDto
      */
     @Operation(summary = "Get list of users")
@@ -57,7 +55,6 @@ public class UserController {
 
     /**
      * Add a user
-     *
      * @return UserDto or message error
      */
     @Operation(summary = "Add a user")

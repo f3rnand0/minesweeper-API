@@ -9,7 +9,6 @@ import java.util.List;
 public class DataStructureTransformer {
     /**
      * Transforms arrays of visible, flagged and cell states into a list of Cell dtos
-     *
      * @param boardDto Dto containing arrays of visible, flagged and cell states
      * @param rows     Number of rows
      * @param columns  numer of columns
@@ -30,11 +29,10 @@ public class DataStructureTransformer {
 
     /**
      * Transforms arrays of visible, flagged and cell states into a list of Cell dtos
-     *
      * @param cellList List of Cell dtos containing which cells are visible, which are flagged and its states
      * @param rows     Number of rows
      * @param columns  Number of columns
-     * @ Dto containing arrays of visible, flagged and cell states
+     * @return Dto containing arrays of visible, flagged and cell states
      */
     protected static BoardDto transformFromListDtoIntoArrays(List<Cell> cellList, int rows, int columns) {
         Boolean[][] visibleCells = new Boolean[rows][columns];
@@ -52,5 +50,4 @@ public class DataStructureTransformer {
         }
         return new BoardDto(visibleCells, flaggedCells, cells);
     }
-
 }

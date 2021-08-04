@@ -1,14 +1,14 @@
-const axios = require('axios');
+import axios from 'axios';
+import config from "../../static/config.json";
 
-const API_PORT = "8080";
-const API_URL = "http://localhost:"+ API_PORT + "/minesweeper-api/";
-const GAME_ADD = API_URL + "game/add/";
-const GAME_MODIFY = API_URL + "game/modify/";
+const apiInfo = config.apiInfo;
+const addGameEndpoint = apiInfo.API_HOST + ":" + apiInfo.API_PORT + apiInfo.API_ROOT + apiInfo.GAME_ADD;
+const modifyGameEndpoint = apiInfo.API_HOST + ":" + apiInfo.API_PORT + apiInfo.API_ROOT + apiInfo.GAME_MODIFY;
 
 export async function addGame(data) {
-    return await axios.post(GAME_ADD, data);
+    return await axios.post(addGameEndpoint, data);
 }
 
 export async function modifyGame(data) {
-    return await axios.post(GAME_MODIFY, data);
+    return await axios.post(modifyGameEndpoint, data);
 }

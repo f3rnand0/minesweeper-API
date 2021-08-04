@@ -1,6 +1,5 @@
 <template>
     <div class="header">
-        Minesweeper by Fernando Guerra
     </div>
 </template>
 

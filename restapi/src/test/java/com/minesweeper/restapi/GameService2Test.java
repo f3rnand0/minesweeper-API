@@ -40,7 +40,7 @@ public class GameService2Test {
         gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long minesCount = cellDtoList.stream().filter(c -> c.getState().equals(CellState.MINE.label)).count();
         assertEquals("Game mines should be equal", (int) gameDtoSaved.getMines(), (int) minesCount);
@@ -65,7 +65,7 @@ public class GameService2Test {
         gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long minesCount = cellDtoList.stream().filter(c -> c.getState().equals(CellState.MINE.label)).count();
         assertEquals("Game mines should be equal", (int) gameDtoSaved.getMines(), (int) minesCount);

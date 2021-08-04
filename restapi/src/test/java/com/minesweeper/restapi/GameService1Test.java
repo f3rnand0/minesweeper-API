@@ -54,7 +54,7 @@ public class GameService1Test {
         GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long minesCount = cellDtoList.stream().filter(c -> c.getState().equals(CellState.MINE.label)).count();
         assertEquals("Game mines should be equal", (int) minesCount, (int) gameDtoSaved.getMines());
@@ -69,7 +69,7 @@ public class GameService1Test {
     }
 
     @Test
-    public void shouldReturnGameWithFlaggedCell() {
+    public void shouldReturnGameWithMoreVisibleCells() {
         GameDto gameDto = new GameDto();
         gameDto.setRows(NUMBER_OF_ROWS);
         gameDto.setColumns(NUMBER_OF_COLUMNS);
@@ -79,13 +79,15 @@ public class GameService1Test {
         GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
-        gameDtoSaved.setGameTurn(GameTurn.LATER);
-        gameDtoSaved.setFlaggedCell(new CellDto(2, 1));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
-        long flaggedCount = cellDtoList.stream().filter(c -> c.getFlagged().equals(Boolean.TRUE)).count();
-        assertEquals("Game with flagged cells should be one", 1, flaggedCount);
+        long visibleCount1 = cellDtoList.stream().filter(c -> c.getVisible().equals(Boolean.TRUE)).count();
+        gameDtoSaved.setGameTurn(GameTurn.LATER);
+        gameDtoSaved.setSelectedCell(new CellDto(0, 2));
+        gameDtoSaved = gameService.continueGame(gameDtoSaved);
+        cellDtoList = gameDtoSaved.getCells();
+        long visibleCount2 = cellDtoList.stream().filter(c -> c.getVisible().equals(Boolean.TRUE)).count();
+        assertTrue("Game with visible cells should be greater than before", visibleCount2 > visibleCount1);
     }
 
     @Test
@@ -99,20 +101,18 @@ public class GameService1Test {
         GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
-        gameDtoSaved.setGameTurn(GameTurn.LATER);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         gameDtoSaved.setFlaggedCell(new CellDto(2, 1));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
-        gameDtoSaved.setGameTurn(GameTurn.LATER);
+        gameDtoSaved = gameService.flagCellGame(gameDtoSaved);
         gameDtoSaved.setFlaggedCell(new CellDto(2, 1));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.flagCellGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long flaggedCount = cellDtoList.stream().filter(c -> c.getFlagged().equals(Boolean.TRUE)).count();
         assertEquals("Game with unflagged cells should be zero", 0, flaggedCount);
     }
 
     @Test
-    public void shouldNotWinOrLoseGameOnFirstTurn() {
+    public void shouldNotWinOrLoseGameOnSecondTurn() {
         GameDto gameDto = new GameDto();
         gameDto.setRows(NUMBER_OF_ROWS);
         gameDto.setColumns(NUMBER_OF_COLUMNS);
@@ -122,11 +122,11 @@ public class GameService1Test {
         GameDto gameDtoSaved = gameService.addGame(gameDto);
         gameDtoSaved.setGameTurn(GameTurn.FIRST);
         gameDtoSaved.setSelectedCell(new CellDto(2, 2));
-        gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+        gameDtoSaved = gameService.startGame(gameDtoSaved);
         if ("".equals(gameDtoSaved.getEndMessage())) {
             gameDtoSaved.setGameTurn(GameTurn.LATER);
             gameDtoSaved.setSelectedCell(new CellDto(2, 1));
-            gameDtoSaved = gameService.modifyGame(gameDtoSaved);
+            gameDtoSaved = gameService.startGame(gameDtoSaved);
         } else
             assertTrue("Game ended", !"".equals(gameDtoSaved.getEndMessage()));
     }

@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-7 mrgnbtm">
-        <h2>Create User</h2>
+        <h2>Game parameters</h2>
         <form>
           <div class="row">
             <div class="form-group col-md-12">
@@ -13,7 +13,7 @@
                 v-model="name"
                 name="name"
                 id="name"
-                placeholder="Name"
+                placeholder="Input your name"
               />
             </div>
           </div>
@@ -26,7 +26,7 @@
                 v-model="rows"
                 name="rows"
                 id="rows"
-                placeholder="Rows"
+                placeholder="Indicate number of rows of the board. Must be greater than 3"
               />
             </div>
           </div>
@@ -39,7 +39,7 @@
                 v-model="columns"
                 name="columns"
                 id="columns"
-                placeholder="Columns"
+                placeholder="Indicate number of columns of the board. Must be greater than 3"
               />
             </div>
           </div>
@@ -52,13 +52,17 @@
                 v-model="mines"
                 name="mines"
                 id="mines"
-                placeholder="Mines"
+                placeholder="Indicate number of mines to be generated. Must be greater than 3"
               />
             </div>
           </div>
-          <button type="button" @click="startGame()" class="btn btn-danger">
-            Start game
-          </button>
+          <div class="row">
+            <div class="form-group col-md-12">
+              <button type="button" @click="startGame()" class="btn btn-primary">
+                Start game
+              </button>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -67,7 +71,6 @@
 
 <script>
 import { addGame, modifyGame } from "../services/GameService";
-import configJson from '../config.json';
 
 export default {
   name: "StartGame",
@@ -76,20 +79,18 @@ export default {
       name: "",
       rows: "",
       columns: "",
-      mines: "",
+      mines: ""
     };
   },
   methods: {
     startGame() {
-      const config = JSON.parse(configJson);
-
       const game = {
         rows: this.rows,
         columns: this.columns,
         mines: this.mines,
         gameTurn: "ZERO",
         user: {
-            name: this.name
+          name: this.name
         }
       };
       console.log(JSON.stringify(game));
@@ -107,7 +108,7 @@ export default {
       this.rows = "";
       this.columns = "";
       this.mines = "";
-    },
-  },
+    }
+  }
 };
 </script>

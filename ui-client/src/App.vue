@@ -1,6 +1,9 @@
 <template>
   <div id="app">
     <div class="container">
+      <div class="header">
+        Minesweeper by Fernando Guerra
+      </div>
       <transition name="moveInUp">
         <router-view />
       </transition>
