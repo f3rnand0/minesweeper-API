@@ -12,12 +12,13 @@ public class MineSweeperAlgorithm {
 
     /**
      * Generate random mines according to number of rows, columns and mines
-     * @param cells     Arrays with cell states
-     * @param rows      Number of rows
-     * @param columns   Number of columns
-     * @param mines     Number of mines
-     * @param x         X position of the first selected cell
-     * @param y         Y position of the first selected cell
+     *
+     * @param cells   Arrays with cell states
+     * @param rows    Number of rows
+     * @param columns Number of columns
+     * @param mines   Number of mines
+     * @param x       X position of the first selected cell
+     * @param y       Y position of the first selected cell
      * @return Array of initial cell states, including mines
      */
     protected static String[][] mineGenerator(String[][] cells, int rows, int columns, int mines,
@@ -39,6 +40,7 @@ public class MineSweeperAlgorithm {
 
     /**
      * Generate corresponding numbers on surrounding cells with mines
+     *
      * @param cells   Arrays with cell states
      * @param rows    Number of rows
      * @param columns Number of columns
@@ -72,6 +74,7 @@ public class MineSweeperAlgorithm {
 
     /**
      * Show a cell or cells, or finish the game based on the selected cell
+     *
      * @param boardDto
      * @param x        X position of the selected cell
      * @param y        Y position of the selected cell
@@ -122,6 +125,7 @@ public class MineSweeperAlgorithm {
 
     /**
      * Validates if the number of visible cells plus mines is equal to the total number of cells
+     *
      * @param visibleCount Number of visible cells
      * @param mines        Number of mines
      * @param rows         Number of rows
@@ -134,13 +138,15 @@ public class MineSweeperAlgorithm {
 
     /**
      * Flags a selected cell
-     * @param visibleCell Row and column of the visible cell
+     *
+     * @param visibleCell  Row and column of the visible cell
      * @param flaggedCells Array of flagged cells
      * @param x            X position of the selected cell
      * @param y            Y position of the selected cell
      * @return Array of flagged cells
      */
-    protected static Boolean[][] flagSelectedCell(Boolean visibleCell, Boolean[][] flaggedCells, int x, int y) {
+    protected static Boolean[][] flagSelectedCell(Boolean visibleCell, Boolean[][] flaggedCells, int x,
+                                                  int y) {
         // Only flag a hidden cell
         if (!visibleCell) {
             // Flag a cell

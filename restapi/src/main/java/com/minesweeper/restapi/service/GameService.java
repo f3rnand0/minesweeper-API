@@ -40,6 +40,7 @@ public class GameService {
 
     /**
      * Add a game in the database based on the game parameters indicated
+     *
      * @param gameDto Dto with game parameters
      * @return Dto with game parameters, game id and list of cells
      */
@@ -54,15 +55,12 @@ public class GameService {
                 .setRows(rows)
                 .setColumns(columns)
                 .setMines(gameDto.getMines())
-                .setGameTurn(GameTurn.ZERO);
+                .setGameTurn(GameTurn.ZERO)
+                .setUser(user);
         Game gameSaved = gameRepository.save(game);
 
         // Generate a list cells with empty state
         List<Cell> cellList = generateBoard(rows, columns, gameSaved);
-
-        // Set user associated to game
-        gameSaved.setUser(user);
-        gameRepository.save(gameSaved);
 
         // Store game and corresponding cells
         GameDto respGameDto = modelMapper.map(gameSaved, GameDto.class);
@@ -81,11 +79,12 @@ public class GameService {
 
     /**
      * Starts a game based on the first selected cell
+     *
      * @param gameDto Dto with game parameters
      * @return Dto with game parameters, game id and list of cells (including states)
      */
     public GameDto startGame(GameDto gameDto) {
-        Optional<Game> optionalGame = gameRepository.findById(gameDto.getId());
+        Optional<Game> optionalGame = gameRepository.findByIdIncludingCells(gameDto.getId());
         Game game = optionalGame.orElseThrow(() -> new NotFoundException("Game not found"));
         game.setGameTurn(gameDto.getGameTurn());
         game.setDateStarted(new Timestamp(Instant.now().toEpochMilli()));
@@ -114,43 +113,32 @@ public class GameService {
                                                      columns);
 
         boardDto.setCells(cells);
-
+        boardDto.setVisibleCount(0);
         // Make visible the first selected cell and count it
-        Boolean[][] visibleCells = boardDto.getVisibleCells();
-        visibleCells[selectedX][selectedY] = Boolean.TRUE;
-        boardDto.setVisibleCount(1);
-        boardDto.setEndMessage("");
-        /*boardDto =
+        boardDto =
                 MineSweeperAlgorithm.checkSelectedCell(boardDto, selectedX,
                                                        selectedY,
-                                                       mines);*/
+                                                       mines);
         cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
         game.setCells(cellList);
         game.setVisibleCount(boardDto.getVisibleCount());
-        // Set the end message in case the game finished
-        game.setEndMessage(boardDto.getEndMessage());
-
-        // Store cells with modifications
+        game.setEndMessage("");
+        // Store game and cells with modifications
         Game gameSaved = gameRepository.save(game);
-        //Boolean gameFinished = !"".equals(gameSaved.getEndMessage());
-        //cellList = modifyBoard(boardDto, rows, columns, gameSaved, gameFinished);
+        cellList = modifyBoard(boardDto, rows, columns, gameSaved, Boolean.FALSE);
+        gameSaved.setCells(cellList);
         GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
-        mappedGameDto.setUser(modelMapper.map(gameSaved.getUser(), UserDto.class));
-        List<CellDto> cellDtoList =
-                cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
-                        .collect(Collectors.toList());
-        mappedGameDto.setCells(cellDtoList);
         return mappedGameDto;
-
     }
 
     /**
      * Continues the game based on the selected cell
+     *
      * @param gameDto Dto with game parameters
      * @return Dto with game parameters, game id and list of cells (including states)
      */
     public GameDto continueGame(GameDto gameDto) {
-        Optional<Game> optionalGame = gameRepository.findById(gameDto.getId());
+        Optional<Game> optionalGame = gameRepository.findByIdIncludingCells(gameDto.getId());
         Game game = optionalGame.orElseThrow(() -> new NotFoundException("Game not found"));
         game.setGameTurn(gameDto.getGameTurn());
 
@@ -167,7 +155,7 @@ public class GameService {
         boardDto = DataStructureTransformer
                 .transformFromListDtoIntoArrays(cellList, rows, columns);
         boardDto.setVisibleCount(game.getVisibleCount());
-        boardDto.setEndMessage("");
+        boardDto.setEndMessage(game.getEndMessage());
 
         // Check surrounding cells of selected cell and do the corresponding action
         Integer selectedX = gameDto.getSelectedCell().getRow();
@@ -176,7 +164,6 @@ public class GameService {
                 MineSweeperAlgorithm.checkSelectedCell(boardDto, selectedX,
                                                        selectedY,
                                                        mines);
-
         cellList = DataStructureTransformer.transformFromArraysIntoListDto(boardDto, rows, columns);
         game.setCells(cellList);
         // Set number of visible cells
@@ -185,7 +172,8 @@ public class GameService {
         game.setEndMessage(boardDto.getEndMessage());
 
         // If game the ended
-        if (!"".equals(game.getEndMessage())) {
+        Boolean gameFinished = !"".equals(game.getEndMessage());
+        if (gameFinished) {
             // Set finished date of the game and elapsed time
             game.setDateFinished(new Timestamp(Instant.now().toEpochMilli()));
             Long elapsedTime = Duration.between(game.getDateStarted().toInstant(),
@@ -199,27 +187,23 @@ public class GameService {
         }
         // Store cells with modifications
         Game gameSaved = gameRepository.save(game);
-        boolean gameFinished = !"".equals(gameSaved.getEndMessage());
         cellList = modifyBoard(boardDto, rows, columns, gameSaved, gameFinished);
+        gameSaved.setCells(cellList);
         GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
-        mappedGameDto.setUser(modelMapper.map(gameSaved.getUser(), UserDto.class));
-        List<CellDto> cellDtoList =
-                cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
-                        .collect(Collectors.toList());
-        mappedGameDto.setCells(cellDtoList);
         return mappedGameDto;
     }
 
     /**
      * Flags a selected cell of the game
+     *
      * @param gameDto Dto with game parameters
      * @return Dto with game parameters, game id and list of cells (including states)
      */
     public GameDto flagCellGame(GameDto gameDto) {
-        Optional<Game> optionalGame = gameRepository.findById(gameDto.getId());
+        Optional<Game> optionalGame = gameRepository.findByIdIncludingCells(gameDto.getId());
         Game game = optionalGame.orElseThrow(() -> new NotFoundException("Game not found"));
 
-        BoardDto boardDto = null;
+        BoardDto boardDto;
         List<Cell> cellList;
         int rows = game.getRows();
         int columns = game.getColumns();
@@ -232,30 +216,26 @@ public class GameService {
                 .transformFromListDtoIntoArrays(cellList, rows, columns);
         Integer selectedX = gameDto.getFlaggedCell().getRow();
         Integer selectedY = gameDto.getFlaggedCell().getColumn();
-        Boolean[][] visibleCells = boardDto.getVisibleCells();
+        Boolean visibleCell = boardDto.getVisibleCells()[selectedX][selectedY];
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();
 
         // Flag selected cell
         boardDto.setFlaggedCells(MineSweeperAlgorithm
-                                         .flagSelectedCell(visibleCells[selectedX][selectedY], flaggedCells,
-                                                           selectedX, selectedY));
+                                         .flagSelectedCell(visibleCell, flaggedCells, selectedX, selectedY));
 
         // Store cells with modifications
         Game gameSaved = gameRepository.save(game);
-        boolean gameFinished = !"".equals(gameSaved.getEndMessage());
+        Boolean gameFinished = !"".equals(game.getEndMessage());
         cellList = modifyBoard(boardDto, rows, columns, gameSaved, gameFinished);
+        gameSaved.setCells(cellList);
         GameDto mappedGameDto = modelMapper.map(gameSaved, GameDto.class);
-        mappedGameDto.setUser(modelMapper.map(gameSaved.getUser(), UserDto.class));
-        List<CellDto> cellDtoList =
-                cellList.stream().map(cell -> modelMapper.map(cell, CellDto.class))
-                        .collect(Collectors.toList());
-        mappedGameDto.setCells(cellDtoList);
         return mappedGameDto;
     }
 
 
     /**
      * Generates a list of cells on the first turn of the game
+     *
      * @param rows      Number of rows
      * @param columns   Number of columns
      * @param gameSaved Entity with the game id
@@ -284,6 +264,7 @@ public class GameService {
 
     /**
      * Modifies the list of cells in the database
+     *
      * @param boardDto  Dto containing arrays of visible, flagged and cell states
      * @param rows      Number of rows
      * @param columns   Number of columns
@@ -291,7 +272,7 @@ public class GameService {
      * @return List of cells saved in the database
      */
     private List<Cell> modifyBoard(BoardDto boardDto, int rows, int columns, Game gameSaved,
-                                   boolean gameFinished) {
+                                   Boolean gameFinished) {
         Boolean[][] visibleCells = boardDto.getVisibleCells();
         Boolean[][] flaggedCells = boardDto.getFlaggedCells();
         String[][] cells = boardDto.getCells();

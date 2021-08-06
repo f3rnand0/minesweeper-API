@@ -22,7 +22,7 @@ public class Game {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "game")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "game")
     private List<Cell> cells;
 
     private Integer rows;

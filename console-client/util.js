@@ -60,7 +60,7 @@ module.exports = {
   },
 
   /**
-   * Trasnforms into a json object more friendly to user to display the cells of the board
+   * Transforms into a json object more friendly to user to display the cells of the board
    * @param {*} cells List of cells of the board at the moment
    * @param {*} rows Number of rows
    * @param {*} columns Number of columns

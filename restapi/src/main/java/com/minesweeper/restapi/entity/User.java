@@ -19,8 +19,10 @@ public class User {
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Game> games;
+
     private String name;
 
     public User(String name) {

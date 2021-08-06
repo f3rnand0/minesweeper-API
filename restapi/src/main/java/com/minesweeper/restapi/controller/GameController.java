@@ -21,6 +21,7 @@ public class GameController {
 
     /**
      * Adds a game
+     *
      * @return GameDto
      */
     @Operation(summary = "Adds a game")
@@ -37,6 +38,7 @@ public class GameController {
 
     /**
      * Starts a game (first turn)
+     *
      * @return GameDto
      */
     @Operation(summary = "Starts a game based on the selected cell of the board. First turn of the player.")
@@ -54,24 +56,27 @@ public class GameController {
 
     /**
      * Continues a game (later turns)
+     *
      * @return GameDto
      */
     @Operation(summary = "Continues a game based on the selected cell of the board. Later turns of the " +
                          "player.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Continues a game based on the selected cell of " +
-                                                             "the board. Later turns of the player.",
+            @ApiResponse(responseCode = "200", description =
+                    "Continues a game based on the selected cell of " +
+                    "the board. Later turns of the player.",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = GameDto.class))}),
             @ApiResponse(responseCode = "404", description = "Game not found",
                     content = @Content)})
     @PutMapping("/continue")
     public ResponseEntity<GameDto> continueGame(@RequestBody GameDto gameDto) {
-        return new ResponseEntity<GameDto>(gameService.continueGame(gameDto), HttpStatus.CREATED);
+        return new ResponseEntity<GameDto>(gameService.continueGame(gameDto), HttpStatus.OK);
     }
 
     /**
      * Flags a indicated cell of the board
+     *
      * @return GameDto
      */
     @Operation(summary = "Flags a indicated cell of the board.")
@@ -83,6 +88,6 @@ public class GameController {
                     content = @Content)})
     @PatchMapping("/flag")
     public ResponseEntity<GameDto> flagCellGame(@RequestBody GameDto gameDto) {
-        return new ResponseEntity<GameDto>(gameService.flagCellGame(gameDto), HttpStatus.CREATED);
+        return new ResponseEntity<GameDto>(gameService.flagCellGame(gameDto), HttpStatus.OK);
     }
 }
