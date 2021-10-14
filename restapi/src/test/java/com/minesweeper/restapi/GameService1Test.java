@@ -6,8 +6,7 @@ import com.minesweeper.restapi.dto.UserDto;
 import com.minesweeper.restapi.entity.CellState;
 import com.minesweeper.restapi.entity.GameTurn;
 import com.minesweeper.restapi.service.GameService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -15,9 +14,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.junit.Assert.*;
+import static org.springframework.test.util.AssertionErrors.*;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 @SpringBootTest
 public class GameService1Test {
 
@@ -108,7 +107,7 @@ public class GameService1Test {
         gameDtoSaved = gameService.flagCellGame(gameDtoSaved);
         List<CellDto> cellDtoList = gameDtoSaved.getCells();
         long flaggedCount = cellDtoList.stream().filter(c -> c.getFlagged().equals(Boolean.TRUE)).count();
-        assertEquals("Game with unflagged cells should be zero", 0, flaggedCount);
+        assertEquals("Game with unflagged cells should be zero", 0L, flaggedCount);
     }
 
     @Test

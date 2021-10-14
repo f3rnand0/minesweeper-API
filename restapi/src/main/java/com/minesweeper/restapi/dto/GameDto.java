@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.minesweeper.restapi.entity.GameTurn;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GameDto {
